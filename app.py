@@ -115,16 +115,31 @@ if st.sidebar.button("Analyze"):
                 st.subheader(f"Goals in {home_team} vs {away_team}")
                 
                 for i in range(len(goal)):
-                    st.write(f"### Goal {i+1}")
+                    # Get goal details from the last action of the sequence
+                    a = actions[goal.index[i]-5:goal.index[i]+1].copy()
+                    goal_action = a.iloc[-1]
+                    scorer = goal_action["short_name"]
+                    team = goal_action["team_name"]
+                    
+                    # Calculate minute and second
+                    total_seconds = goal_action["period_id"] * 45 * 60 + goal_action["time_seconds"] if "period_id" in goal_action else goal_action["time_seconds"]
+                    minute = int(goal_action["time_seconds"] // 60)
+                    second = int(goal_action["time_seconds"] % 60)
+                    period = int(goal_action["period_id"])
+                    
+                    st.markdown(f"#### ⚽ Goal {i+1}: {scorer} ({team})")
+                    st.markdown(f"**Minute:** {minute}:{second:02d} (Period {period})")
+                    
                     fig, ax = plt.subplots(figsize=(10, 7))
                     
                     # Adapted plotting logic
-                    a = actions[goal.index[i]-5:goal.index[i]+1].copy()
                     g = games[games.game_id == a.game_id.values[0]].iloc[0]
                     
                     a["nice_time"] = a.apply(nice_time, axis=1)
                     labels = a[["nice_time", "type_name", "short_name"]]
                     
+                    # Use matplotsoccer with miniature markers if supported, 
+                    # or standard sizes with zoomed out view
                     matplotsoccer.actions(
                         location=a[["start_x", "start_y", "end_x", "end_y"]],
                         action_type=a.type_name,
@@ -136,6 +151,11 @@ if st.sidebar.button("Analyze"):
                         show=False,
                         ax=ax
                     )
+                    
+                    # Decrease marker sizes by iterating through scatter collections
+                    for collection in ax.collections:
+                        collection.set_sizes([15]) # Miniature size
+                    
                     st.pyplot(fig)
                     plt.close(fig)
 
