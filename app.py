@@ -31,14 +31,35 @@ def id_return(league_name):
 leagues = ['Serie A', 'Premier League', 'La Liga', 'Bundes Liga', 'Ligue 1', 'World Cup']
 data_source = st.sidebar.radio("Data Source", ["Legacy Wyscout (2017/18)", "Latest StatsBomb (Open Data)"])
 
+# StatsBomb Competition Mapping
+sb_comp_map = {
+    "Euro 2024": (55, 282), 
+    "La Liga (2020/21)": (11, 42), 
+    "Premier League (2015/16)": (2, 27),
+    "Champions League (2018/19)": (16, 4)
+}
+
 if data_source == "Latest StatsBomb (Open Data)":
-    st.sidebar.warning("StatsBomb integration is in PROTOTYPE mode. Latest matches (Euro 2024, La Liga 22/23) will be available soon.")
-    chosen_league = st.sidebar.selectbox("Select Competition", ["Euro 2024", "La Liga (Messi Era)", "Champions League"])
+    st.sidebar.warning("StatsBomb integration is in PROTOTYPE mode. Data is fetched live from StatsBomb Open Data.")
+    chosen_league = st.sidebar.selectbox("Select Competition", list(sb_comp_map.keys()))
 else:
     chosen_league = st.sidebar.selectbox("Select League", leagues)
 
 # Function to get teams for chosen league
-def get_league_teams(league):
+def get_league_teams(league, source):
+    if source == "Latest StatsBomb (Open Data)":
+        from statsbombpy import sb
+        if league in sb_comp_map:
+            cid, sid = sb_comp_map[league]
+            try:
+                matches = sb.matches(competition_id=cid, season_id=sid)
+                home_teams = matches["home_team"].unique()
+                away_teams = matches["away_team"].unique()
+                return sorted(list(set(home_teams) | set(away_teams)))
+            except:
+                return ["Loading..."]
+        return []
+
     if league == "World Cup":
         spadl_h5 = os.path.join('spadl', "spadl-WorldCup-2018.h5")
         if os.path.exists(spadl_h5):
@@ -51,20 +72,61 @@ def get_league_teams(league):
     
     # Map 'Bundes Liga' to 'Bundes_Liga' to match CSV header
     col_name = league.replace(" ", "_")
-    return teams_df[col_name].dropna().tolist()
+    if col_name in teams_df.columns:
+        return teams_df[col_name].dropna().tolist()
+    return []
 
-league_teams = get_league_teams(chosen_league)
+league_teams = get_league_teams(chosen_league, data_source)
 
 home_team = st.sidebar.selectbox("Home Team", league_teams, index=0)
 # Exclude home team from away team list
 away_teams = [t for t in league_teams if t != home_team]
 away_team = st.sidebar.selectbox("Away Team", away_teams, index=0)
 
-display_option = st.sidebar.radio("Display Option", ["Goal Plots", "VAEP Ranking"])
+display_option = st.sidebar.radio("Display Option", ["Goal Plots", "VAEP/xT Ranking"])
 
-# Data Generation Logic (adapted from Automated_Goal_plots.py)
-def data_generation(home_team_name, away_team_name, league_name):
-    # Fix league name for file path if needed
+# Data Generation Logic (adapted for both sources)
+def data_generation(home_team_name, away_team_name, league_name, source):
+    if source == "Latest StatsBomb (Open Data)":
+        from statsbombpy import sb
+        from socceraction.data.statsbomb import StatsBombLoader
+        import socceraction.spadl as spadl
+        
+        cid, sid = sb_comp_map[league_name]
+        loader = StatsBombLoader()
+        
+        # Find the specific match
+        matches = sb.matches(competition_id=cid, season_id=sid)
+        match = matches[(matches.home_team == home_team_name) & (matches.away_team == away_team_name)]
+        
+        if len(match) == 0:
+            return None, None, None
+            
+        match_id = match.iloc[0].match_id
+        df_actions = loader.events(match_id)
+        df_teams = loader.teams(match_id)
+        df_players = loader.players(match_id)
+        
+        # Convert to SPADL
+        actions = spadl.statsbomb.convert_to_actions(df_actions, home_team_id=df_teams.iloc[0].team_id)
+        
+        # Add names
+        actions = (
+            actions.merge(spadl.actiontypes_df(), how="left")
+            .merge(spadl.results_df(), how="left")
+            .merge(df_players[["player_id", "player_name", "nickname"]], how="left")
+            .merge(df_teams[["team_id", "team_name"]], how="left")
+        )
+        actions["short_name"] = actions["nickname"].fillna(actions["player_name"])
+        
+        goal = actions[((actions["type_name"] == "shot") | (actions["type_name"] == "shot_penalty") | (actions["type_name"] == "shot_freekick")) &
+                       (actions["result_name"] == "success")]
+        
+        # Mock games df for compatibility
+        games = pd.DataFrame([{"game_id": match_id, "home_team_name": home_team_name, "away_team_name": away_team_name}])
+        return actions, goal, games
+
+    # Legacy Wyscout Logic
     if league_name == "Bundes Liga":
         league_file_name = "Bundesliga"
     elif league_name == "World Cup":
@@ -73,14 +135,11 @@ def data_generation(home_team_name, away_team_name, league_name):
         league_file_name = league_name
         
     spadl_h5 = os.path.join('spadl', f"spadl-{league_file_name}.h5")
-    
     if not os.path.exists(spadl_h5):
-        st.error(f"Data file not found: {spadl_h5}")
         return None, None, None
 
     with pd.HDFStore(spadl_h5) as spadlstore:
         games = spadlstore["games"]
-        # Use league_file_name for ID return too
         league_id_key = league_name if league_name != "Bundes Liga" else "Bundesliga"
         game_id = games[(games.competition_id == id_return(league_id_key))
                       & ((games.home_team_name == home_team_name)
@@ -95,7 +154,6 @@ def data_generation(home_team_name, away_team_name, league_name):
             action = (
                 action.merge(spadlstore["actiontypes"], how="left")
                 .merge(spadlstore["results"], how="left")
-                .merge(spadlstore["bodyparts"], how="left")
                 .merge(spadlstore["players"], how="left")
                 .merge(spadlstore["teams"], how="left")
             )
@@ -104,14 +162,13 @@ def data_generation(home_team_name, away_team_name, league_name):
         actions = pd.concat(actions_list, ignore_index=True)
         goal = actions[((actions["type_name"] == "shot") | (actions["type_name"] == "shot_penalty") | (actions["type_name"] == "shot_freekick")) &
                        (actions["result_name"] == "success")]
-        
         return actions, goal, games
 
 # Main content
 if st.sidebar.button("Analyze"):
     if display_option == "Goal Plots":
         with st.spinner("Generating goal plots..."):
-            actions, goal, games = data_generation(home_team, away_team, chosen_league)
+            actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
             
             if actions is None:
                 st.warning("No data found for this match combination.")
@@ -165,23 +222,46 @@ if st.sidebar.button("Analyze"):
                     st.pyplot(fig)
                     plt.close(fig)
 
-    else:  # VAEP Ranking
-        st.subheader(f"Top 10 Players in {chosen_league} by VAEP")
-        league_file_map = {
-            "Serie A": "VAEP_score_Serie_A.csv",
-            "La Liga": "VAEP_score_La_Liga.csv",
-            "Premier League": "VAEP_score_Premier_League.csv",
-            "Ligue 1": "VAEP_score_Ligue_1.csv",
-            "Bundes Liga": "VAEP_score_Bundesliga.csv"
-        }
-        csv_file = league_file_map[chosen_league]
-        if os.path.exists(csv_file):
-            # The CSV seems to have 10 rows and some columns, based on the GUI code grid
-            # Let's read it and display as a nice table
-            df_vaep = pd.read_csv(csv_file)
-            st.dataframe(df_vaep, use_container_width=True)
+    else:  # VAEP/xT Ranking
+        if data_source == "Latest StatsBomb (Open Data)":
+            with st.spinner("Computing Player Impact (xT)..."):
+                actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
+                if actions is not None:
+                    import socceraction.xthreat as xT
+                    # Train a quick xT model on this match (or use pre-trained in production)
+                    xt_model = xT.ExpectedThreat(l=16, w=12)
+                    xt_model.fit(actions)
+                    actions["xt_value"] = xt_model.rate(actions)
+                    
+                    st.subheader(f"Player Impact (xT) in {home_team} vs {away_team}")
+                    summary = actions.groupby(["short_name", "team_name"]).agg({
+                        "xt_value": "sum",
+                        "type_name": "count"
+                    }).rename(columns={"type_name": "total_actions", "xt_value": "Expected Threat (xT)"})
+                    
+                    summary = summary.sort_values("Expected Threat (xT)", ascending=False)
+                    st.dataframe(summary, use_container_width=True)
+                    st.info("💡 Expected Threat (xT) measures how much a player's actions increased the probability of scoring.")
+                else:
+                    st.warning("No data found for this match.")
         else:
-            st.error(f"VAEP score file not found: {csv_file}")
+            st.subheader(f"Top 10 Players in {chosen_league} by VAEP")
+            league_file_map = {
+                "Serie A": "VAEP_score_Serie_A.csv",
+                "La Liga": "VAEP_score_La_Liga.csv",
+                "Premier League": "VAEP_score_Premier_League.csv",
+                "Ligue 1": "VAEP_score_Ligue_1.csv",
+                "Bundes Liga": "VAEP_score_Bundesliga.csv"
+            }
+            if chosen_league in league_file_map:
+                csv_file = league_file_map[chosen_league]
+                if os.path.exists(csv_file):
+                    df_vaep = pd.read_csv(csv_file)
+                    st.dataframe(df_vaep, use_container_width=True)
+                else:
+                    st.error(f"VAEP score file not found: {csv_file}")
+            else:
+                st.info("VAEP rankings are available for legacy league selections.")
 
 st.sidebar.markdown("---")
-st.sidebar.info("Data source: Wyscout 2017-18 Season")
+st.sidebar.info(f"Data Source: {data_source}")
