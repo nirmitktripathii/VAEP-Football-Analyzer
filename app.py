@@ -29,7 +29,13 @@ def id_return(league_name):
     return leagues[league_name]
 
 leagues = ['Serie A', 'Premier League', 'La Liga', 'Bundes Liga', 'Ligue 1', 'World Cup']
-chosen_league = st.sidebar.selectbox("Select League", leagues)
+data_source = st.sidebar.radio("Data Source", ["Legacy Wyscout (2017/18)", "Latest StatsBomb (Open Data)"])
+
+if data_source == "Latest StatsBomb (Open Data)":
+    st.sidebar.warning("StatsBomb integration is in PROTOTYPE mode. Latest matches (Euro 2024, La Liga 22/23) will be available soon.")
+    chosen_league = st.sidebar.selectbox("Select Competition", ["Euro 2024", "La Liga (Messi Era)", "Champions League"])
+else:
+    chosen_league = st.sidebar.selectbox("Select League", leagues)
 
 # Function to get teams for chosen league
 def get_league_teams(league):

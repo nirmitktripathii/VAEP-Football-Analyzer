@@ -5,3 +5,5 @@ matplotsoccer
 tables
 socceraction
 setuptools
+statsbombpy
+tabulate
