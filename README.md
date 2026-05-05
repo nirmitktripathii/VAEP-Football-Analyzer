@@ -1,3 +1,13 @@
+---
+title: VAEP Football Analyzer
+emoji: ⚽
+colorFrom: green
+colorTo: indigo
+sdk: streamlit
+app_file: app.py
+pinned: false
+---
+
 # VAEP Football Action Valuation
 
 This project implements the **VAEP (Valuing Actions by Estimating Probabilities)** framework to value player actions in football matches. 
