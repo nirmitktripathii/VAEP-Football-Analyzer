@@ -191,6 +191,8 @@ with tab_match:
             if actions is None:
                 st.warning("No data found for this match combination.")
             else:
+                # Prepare plotting labels
+                actions["nice_time"] = actions.apply(nice_time, axis=1)
                 # Goal Plots section
                 if len(goal) == 0:
                     st.info("No goals were scored in this match.")
