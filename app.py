@@ -281,42 +281,49 @@ with tab_tactical:
     """)
     
     if data_source == "Latest StatsBomb (Open Data)":
-        if st.button("Run 360 Tactical Analysis", key="btn_360"):
-            from compute_tactical_metrics import compute_360_tactical_metrics
+        # Find the match_id and check 360 availability
+        cid, sid = sb_comp_map[chosen_league]
+        matches = sb.matches(competition_id=cid, season_id=sid)
+        match = matches[((matches.home_team == home_team) & (matches.away_team == away_team)) | 
+                        ((matches.home_team == away_team) & (matches.away_team == home_team))]
+        
+        if not match.empty:
+            match_id = match.iloc[0].match_id
+            # Check for 360 availability using 'match_available_360' column
+            # Some competitions have the column but entries might be 'None' or 'available'
+            is_360_available = match.iloc[0].get('match_available_360') is not None
             
-            # Find the match_id
-            cid, sid = sb_comp_map[chosen_league]
-            matches = sb.matches(competition_id=cid, season_id=sid)
-            match = matches[((matches.home_team == home_team) & (matches.away_team == away_team)) | 
-                            ((matches.home_team == away_team) & (matches.away_team == home_team))]
-            
-            if not match.empty:
-                match_id = match.iloc[0].match_id
-                
-                with st.spinner("Extracting 360 frames and computing tactical metrics..."):
-                    summary = compute_360_tactical_metrics(match_id)
+            if is_360_available:
+                if st.button("Run 360 Tactical Analysis", key="btn_360"):
+                    from compute_tactical_metrics import compute_360_tactical_metrics
                     
-                    if summary is not None:
-                        st.success("Tactical metrics successfully extracted!")
+                    with st.spinner("Extracting 360 frames and computing tactical metrics..."):
+                        summary = compute_360_tactical_metrics(match_id)
                         
-                        # Display Metrics in Columns
-                        cols = st.columns(2)
-                        for i, team_name in enumerate(summary['team'].unique()):
-                            team_stats = summary[summary['team'] == team_name].iloc[0]
-                            with cols[i % 2]:
-                                st.markdown(f"### {team_name}")
-                                st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
-                                st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
-                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
-                                st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
-                                st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
-                        
-                        st.divider()
-                        st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
-                    else:
-                        st.warning("360 data is not available for this specific match. Please try a major tournament like Euro 2024 or World Cup 2022.")
+                        if summary is not None:
+                            st.success("Tactical metrics successfully extracted!")
+                            
+                            # Display Metrics in Columns
+                            cols = st.columns(2)
+                            for i, team_name in enumerate(summary['team'].unique()):
+                                team_stats = summary[summary['team'] == team_name].iloc[0]
+                                with cols[i % 2]:
+                                    st.markdown(f"### {team_name}")
+                                    st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
+                                    st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
+                                    st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
+                                    st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
+                                    st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
+                            
+                            st.divider()
+                            st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
+                        else:
+                            st.error("Failed to extract tactical metrics even though 360 data was marked available. This may be due to missing frames in the StatsBomb Open Data repository.")
             else:
-                st.error("Match not found.")
+                st.warning(f"⚠️ **StatsBomb 360 data is NOT available** for the match between {home_team} and {away_team} ({chosen_league}).")
+                st.info("Try a match from **UEFA Euro 2024**, **FIFA World Cup 2022**, or **La Liga 2020/21** for full 360 tactical insights.")
+        else:
+            st.error("Match not found.")
     else:
         st.warning("StatsBomb 360 data is only available for 'Latest StatsBomb (Open Data)' source.")
 
