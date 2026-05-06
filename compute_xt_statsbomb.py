@@ -77,19 +77,42 @@ class FootballAnalyticsEngine:
         summary = summary.sort_values("xt_value", ascending=False)
         return summary, actions
 
+    def get_competition_leaderboard(self, competition_id, season_id, max_matches=None):
+        """Fetches all matches for a competition and aggregates player impacts."""
+        matches = sb.matches(competition_id=competition_id, season_id=season_id)
+        if max_matches:
+            matches = matches.head(max_matches)
+            
+        print(f"Processing {len(matches)} matches for Competition {competition_id}...")
+        
+        all_summaries = []
+        for _, match in matches.iterrows():
+            try:
+                # For leaderboards, we compute xT for each match and aggregate
+                # In production, we'd use a pre-fitted model for consistent xT across matches
+                actions = self.load_match_data(match.match_id)
+                self.xt_model.fit(actions) # Refit or use global
+                actions["xt_value"] = self.xt_model.rate(actions)
+                
+                # Aggregate per match
+                m_summary = actions.groupby(["player_name", "team_name"]).agg({
+                    "xt_value": "sum",
+                    "type_name": "count"
+                })
+                all_summaries.append(m_summary)
+            except Exception as e:
+                print(f"Error processing match {match.match_id}: {e}")
+                
+        if not all_summaries:
+            return pd.DataFrame()
+            
+        # Combine all matches
+        leaderboard = pd.concat(all_summaries).groupby(["player_name", "team_name"]).sum()
+        leaderboard = leaderboard.sort_values("xt_value", ascending=False)
+        return leaderboard
+
 if __name__ == "__main__":
     engine = FootballAnalyticsEngine()
-    
-    # Let's use Euro 2024 Final: Spain vs England (3943043)
-    # Step 1: In a real app, we'd train on the whole tournament
-    # For this prototype, we'll "train" and "predict" on the same match to show the pipe
-    match_id = 3943043 
-    
-    if engine.train_xt_model([match_id]):
-        summary, actions = engine.compute_metrics(match_id)
-        print("\nTop Players by Expected Threat (xT) - Euro 2024 Final:")
-        print(summary.head(10).to_markdown())
-        
-        # Save to CSV for the Portal to pick up
-        summary.to_csv("euro_2024_xt_summary.csv")
-        print(f"\nAnalysis complete. Results saved to euro_2024_xt_summary.csv")
+    # Demo: Get Euro 2024 Leaderboard (Top 5 matches)
+    df = engine.get_competition_leaderboard(55, 282, max_matches=5)
+    print(df.head(20).to_markdown())

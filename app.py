@@ -31,57 +31,70 @@ def id_return(league_name):
 leagues = ['Serie A', 'Premier League', 'La Liga', 'Bundes Liga', 'Ligue 1', 'World Cup']
 data_source = st.sidebar.radio("Data Source", ["Legacy Wyscout (2017/18)", "Latest StatsBomb (Open Data)"])
 
-# StatsBomb Competition Mapping
-sb_comp_map = {
-    "Euro 2024": (55, 282), 
-    "La Liga (2020/21)": (11, 42), 
-    "Premier League (2015/16)": (2, 27),
-    "Champions League (2018/19)": (16, 4)
-}
+# StatsBomb Data Fetching
+@st.cache_data
+def get_sb_competitions():
+    from statsbombpy import sb
+    comps = sb.competitions()
+    # Filter for competitions with available match data
+    comps = comps[comps['match_available'].notna()]
+    # Create a display name: "Competition Name (Season)"
+    comps['display_name'] = comps['competition_name'] + " (" + comps['season_name'] + ")"
+    # Create a map for easy lookup
+    comp_dict = {row['display_name']: (row['competition_id'], row['season_id']) for _, row in comps.iterrows()}
+    return comp_dict
 
 if data_source == "Latest StatsBomb (Open Data)":
     st.sidebar.warning("StatsBomb integration is in PROTOTYPE mode. Data is fetched live from StatsBomb Open Data.")
-    chosen_league = st.sidebar.selectbox("Select Competition", list(sb_comp_map.keys()))
+    sb_comp_map = get_sb_competitions()
+    chosen_league = st.sidebar.selectbox("Select Competition", sorted(list(sb_comp_map.keys())))
 else:
     chosen_league = st.sidebar.selectbox("Select League", leagues)
 
-# Function to get teams for chosen league
-def get_league_teams(league, source):
-    if source == "Latest StatsBomb (Open Data)":
-        from statsbombpy import sb
-        if league in sb_comp_map:
-            cid, sid = sb_comp_map[league]
-            try:
-                matches = sb.matches(competition_id=cid, season_id=sid)
-                home_teams = matches["home_team"].unique()
-                away_teams = matches["away_team"].unique()
-                return sorted(list(set(home_teams) | set(away_teams)))
-            except:
-                return ["Loading..."]
+# Function to get teams and matches
+@st.cache_data
+def get_sb_matches(league):
+    from statsbombpy import sb
+    if league in sb_comp_map:
+        cid, sid = sb_comp_map[league]
+        return sb.matches(competition_id=cid, season_id=sid)
+    return pd.DataFrame()
+
+if data_source == "Latest StatsBomb (Open Data)":
+    matches_df = get_sb_matches(chosen_league)
+    if not matches_df.empty:
+        # Get all unique teams that participated
+        all_teams = sorted(list(set(matches_df["home_team"]) | set(matches_df["away_team"])))
+        home_team = st.sidebar.selectbox("Home Team", all_teams)
+        
+        # Filter away teams: find all opponents of the selected home team in any match
+        opponents = set(matches_df[matches_df.home_team == home_team]["away_team"]) | \
+                    set(matches_df[matches_df.away_team == home_team]["home_team"])
+        
+        away_options = sorted(list(opponents))
+        away_team = st.sidebar.selectbox("Away Team", away_options)
+    else:
+        st.sidebar.error("Failed to fetch matches for this competition. Try another one.")
+        home_team, away_team = None, None
+else:
+    # Legacy logic for teams
+    def get_league_teams(league):
+        if league == "World Cup":
+            spadl_h5 = os.path.join('spadl', "spadl-WorldCup-2018.h5")
+            if os.path.exists(spadl_h5):
+                with pd.HDFStore(spadl_h5) as store:
+                    games = store["games"]
+                    return sorted(list(set(games["home_team_name"].unique()) | set(games["away_team_name"].unique())))
+            return []
+        col_name = league.replace(" ", "_")
+        if col_name in teams_df.columns:
+            return teams_df[col_name].dropna().tolist()
         return []
 
-    if league == "World Cup":
-        spadl_h5 = os.path.join('spadl', "spadl-WorldCup-2018.h5")
-        if os.path.exists(spadl_h5):
-            with pd.HDFStore(spadl_h5) as store:
-                games = store["games"]
-                home_teams = games["home_team_name"].unique()
-                away_teams = games["away_team_name"].unique()
-                return sorted(list(set(home_teams) | set(away_teams)))
-        return []
-    
-    # Map 'Bundes Liga' to 'Bundes_Liga' to match CSV header
-    col_name = league.replace(" ", "_")
-    if col_name in teams_df.columns:
-        return teams_df[col_name].dropna().tolist()
-    return []
-
-league_teams = get_league_teams(chosen_league, data_source)
-
-home_team = st.sidebar.selectbox("Home Team", league_teams, index=0)
-# Exclude home team from away team list
-away_teams = [t for t in league_teams if t != home_team]
-away_team = st.sidebar.selectbox("Away Team", away_teams, index=0)
+    league_teams = get_league_teams(chosen_league)
+    home_team = st.sidebar.selectbox("Home Team", league_teams, index=0)
+    away_teams = [t for t in league_teams if t != home_team]
+    away_team = st.sidebar.selectbox("Away Team", away_teams, index=0)
 
 display_option = st.sidebar.radio("Display Option", ["Goal Plots", "VAEP/xT Ranking"])
 
@@ -95,9 +108,10 @@ def data_generation(home_team_name, away_team_name, league_name, source):
         cid, sid = sb_comp_map[league_name]
         loader = StatsBombLoader()
         
-        # Find the specific match
         matches = sb.matches(competition_id=cid, season_id=sid)
-        match = matches[(matches.home_team == home_team_name) & (matches.away_team == away_team_name)]
+        # Check both directions
+        match = matches[((matches.home_team == home_team_name) & (matches.away_team == away_team_name)) | 
+                        ((matches.home_team == away_team_name) & (matches.away_team == home_team_name))]
         
         if len(match) == 0:
             return None, None, None
@@ -165,103 +179,130 @@ def data_generation(home_team_name, away_team_name, league_name, source):
         return actions, goal, games
 
 # Main content
-if st.sidebar.button("Analyze"):
-    if display_option == "Goal Plots":
-        with st.spinner("Generating goal plots..."):
+# Main content with Tabs
+tab_match, tab_team, tab_league = st.tabs(["🎯 Match Analysis", "🛡️ Team Analytics", "🏆 League Leaderboards"])
+
+with tab_match:
+    st.subheader("Match-wise Action Valuation")
+    if st.button("Analyze Match", key="btn_match"):
+        with st.spinner("Generating match analysis..."):
             actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
             
             if actions is None:
                 st.warning("No data found for this match combination.")
-            elif len(goal) == 0:
-                st.info("No goals were scored in this match.")
             else:
-                st.subheader(f"Goals in {home_team} vs {away_team}")
-                
-                for i in range(len(goal)):
-                    # Get goal details from the last action of the sequence
-                    a = actions[goal.index[i]-5:goal.index[i]+1].copy()
-                    goal_action = a.iloc[-1]
-                    scorer = goal_action["short_name"]
-                    team = goal_action["team_name"]
-                    
-                    # Calculate minute and second
-                    total_seconds = goal_action["period_id"] * 45 * 60 + goal_action["time_seconds"] if "period_id" in goal_action else goal_action["time_seconds"]
-                    minute = int(goal_action["time_seconds"] // 60)
-                    second = int(goal_action["time_seconds"] % 60)
-                    period = int(goal_action["period_id"])
-                    
-                    st.markdown(f"#### ⚽ Goal {i+1}: {scorer} ({team})")
-                    st.markdown(f"**Minute:** {minute}:{second:02d} (Period {period})")
-                    
-                    fig, ax = plt.subplots(figsize=(10, 7))
-                    
-                    # Adapted plotting logic
-                    g = games[games.game_id == a.game_id.values[0]].iloc[0]
-                    
-                    a["nice_time"] = a.apply(nice_time, axis=1)
-                    labels = a[["nice_time", "type_name", "short_name"]]
-                    
-                    # Use matplotsoccer with miniature markers if supported, 
-                    # or standard sizes with zoomed out view
-                    matplotsoccer.actions(
-                        location=a[["start_x", "start_y", "end_x", "end_y"]],
-                        action_type=a.type_name,
-                        team=a.team_name,
-                        result=a.result_name == "success",
-                        label=labels,
-                        labeltitle=["time", "actiontype", "short_name"],
-                        zoom=False,
-                        show=False,
-                        ax=ax
-                    )
-                    
-                    # Decrease marker sizes by iterating through scatter collections
-                    for collection in ax.collections:
-                        collection.set_sizes([15]) # Miniature size
-                    
-                    st.pyplot(fig)
-                    plt.close(fig)
+                # Goal Plots section
+                if len(goal) == 0:
+                    st.info("No goals were scored in this match.")
+                else:
+                    st.markdown(f"### ⚽ Goals in {home_team} vs {away_team}")
+                    for i in range(len(goal)):
+                        a = actions[goal.index[i]-5:goal.index[i]+1].copy()
+                        goal_action = a.iloc[-1]
+                        scorer = goal_action["short_name"]
+                        team = goal_action["team_name"]
+                        minute = int(goal_action["time_seconds"] // 60)
+                        
+                        st.markdown(f"**Goal {i+1}: {scorer} ({team})** - {minute}'")
+                        fig, ax = plt.subplots(figsize=(10, 7))
+                        matplotsoccer.actions(
+                            location=a[["start_x", "start_y", "end_x", "end_y"]],
+                            action_type=a.type_name,
+                            team=a.team_name,
+                            result=a.result_name == "success",
+                            label=a[["nice_time", "type_name", "short_name"]],
+                            labeltitle=["time", "actiontype", "short_name"],
+                            zoom=False, show=False, ax=ax
+                        )
+                        for collection in ax.collections: collection.set_sizes([15])
+                        st.pyplot(fig)
+                        plt.close(fig)
 
-    else:  # VAEP/xT Ranking
-        if data_source == "Latest StatsBomb (Open Data)":
-            with st.spinner("Computing Player Impact (xT)..."):
-                actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
-                if actions is not None:
+                st.divider()
+                # Match VAEP/xT Ranking
+                st.markdown(f"### 📊 Player Impact (xT) Ranking")
+                if data_source == "Latest StatsBomb (Open Data)":
                     import socceraction.xthreat as xT
-                    # Train a quick xT model on this match (or use pre-trained in production)
                     xt_model = xT.ExpectedThreat(l=16, w=12)
                     xt_model.fit(actions)
                     actions["xt_value"] = xt_model.rate(actions)
                     
-                    st.subheader(f"Player Impact (xT) in {home_team} vs {away_team}")
                     summary = actions.groupby(["short_name", "team_name"]).agg({
-                        "xt_value": "sum",
-                        "type_name": "count"
+                        "xt_value": "sum", "type_name": "count"
                     }).rename(columns={"type_name": "total_actions", "xt_value": "Expected Threat (xT)"})
-                    
                     summary = summary.sort_values("Expected Threat (xT)", ascending=False)
-                    st.dataframe(summary, use_container_width=True)
-                    st.info("💡 Expected Threat (xT) measures how much a player's actions increased the probability of scoring.")
+                    st.dataframe(summary, width="stretch")
                 else:
-                    st.warning("No data found for this match.")
-        else:
-            st.subheader(f"Top 10 Players in {chosen_league} by VAEP")
-            league_file_map = {
-                "Serie A": "VAEP_score_Serie_A.csv",
-                "La Liga": "VAEP_score_La_Liga.csv",
-                "Premier League": "VAEP_score_Premier_League.csv",
-                "Ligue 1": "VAEP_score_Ligue_1.csv",
-                "Bundes Liga": "VAEP_score_Bundesliga.csv"
-            }
-            if chosen_league in league_file_map:
-                csv_file = league_file_map[chosen_league]
-                if os.path.exists(csv_file):
-                    df_vaep = pd.read_csv(csv_file)
-                    st.dataframe(df_vaep, use_container_width=True)
+                    st.info("Match-wise rankings are being optimized for legacy data. View full league rankings in the Leaderboards tab.")
+
+with tab_team:
+    st.subheader(f"🛡️ Team Analytics: {home_team}")
+    if data_source == "Latest StatsBomb (Open Data)":
+        if st.button(f"Analyze {home_team} Season Contribution"):
+            from compute_xt_statsbomb import FootballAnalyticsEngine
+            engine = FootballAnalyticsEngine()
+            comp_id, season_id = sb_comp_map[chosen_league]
+            
+            with st.spinner(f"Fetching season data for {home_team}..."):
+                matches = sb.matches(competition_id=comp_id, season_id=season_id)
+                team_matches = matches[(matches.home_team == home_team) | (matches.away_team == home_team)]
+                
+                all_actions = []
+                for _, m in team_matches.head(5).iterrows(): # Sample 5
+                    try:
+                        actions = engine.load_match_data(m.match_id)
+                        all_actions.append(actions[actions.team_name == home_team])
+                    except: pass
+                
+                if all_actions:
+                    df_team = pd.concat(all_actions)
+                    st.markdown(f"#### Most Threatening Players for {home_team}")
+                    # Simple xT summary
+                    xt_model = xT.ExpectedThreat(l=16, w=12)
+                    xt_model.fit(df_team)
+                    df_team["xt_value"] = xt_model.rate(df_team)
+                    summary = df_team.groupby("player_name").agg({"xt_value": "sum"}).sort_values("xt_value", ascending=False)
+                    st.dataframe(summary, width="stretch")
                 else:
-                    st.error(f"VAEP score file not found: {csv_file}")
+                    st.warning("Could not find enough data for this team.")
+    else:
+        st.info("Team analytics are available for StatsBomb Open Data.")
+
+with tab_league:
+    st.subheader(f"🏆 League Leaderboard: {chosen_league}")
+    if data_source == "Latest StatsBomb (Open Data)":
+        sample_size = st.slider("Number of matches to analyze", 1, 50, 5)
+        if st.button("Generate Season Rankings"):
+            from compute_xt_statsbomb import FootballAnalyticsEngine
+            engine = FootballAnalyticsEngine()
+            comp_id, season_id = sb_comp_map[chosen_league]
+            
+            with st.spinner(f"Computing impact for {sample_size} matches..."):
+                leaderboard = engine.get_competition_leaderboard(comp_id, season_id, max_matches=sample_size)
+                if not leaderboard.empty:
+                    st.markdown(f"#### Top Players by xT (Sample: {sample_size} matches)")
+                    st.dataframe(leaderboard, width="stretch")
+                    st.success(f"Successfully processed {sample_size} matches.")
+                else:
+                    st.error("Failed to generate leaderboard.")
+    else:
+        # Legacy logic remains...
+        league_file_map = {
+            "Serie A": "VAEP_score_Serie_A.csv",
+            "La Liga": "VAEP_score_La_Liga.csv",
+            "Premier League": "VAEP_score_Premier_League.csv",
+            "Ligue 1": "VAEP_score_Ligue_1.csv",
+            "Bundes Liga": "VAEP_score_Bundesliga.csv"
+        }
+        if chosen_league in league_file_map:
+            csv_file = league_file_map[chosen_league]
+            if os.path.exists(csv_file):
+                df_vaep = pd.read_csv(csv_file)
+                st.dataframe(df_vaep, width="stretch")
             else:
-                st.info("VAEP rankings are available for legacy league selections.")
+                st.error("VAEP leaderboard not found.")
+        else:
+            st.info("Rankings available for legacy European leagues.")
 
 st.sidebar.markdown("---")
 st.sidebar.info(f"Data Source: {data_source}")
