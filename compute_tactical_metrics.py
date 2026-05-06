@@ -2,6 +2,7 @@ import pandas as pd
 from statsbombpy import sb
 import numpy as np
 import warnings
+import requests
 
 # Suppress warnings
 warnings.filterwarnings("ignore", message="credentials were not supplied")
@@ -10,8 +11,15 @@ def compute_360_tactical_metrics(match_id):
     print(f"Fetching data for match {match_id}...")
     
     # Fetch events and 360 frames
-    events = sb.events(match_id=match_id)
-    frames = sb.frames(match_id=match_id, fmt="dataframe")
+    try:
+        events = sb.events(match_id=match_id)
+        frames = sb.frames(match_id=match_id, fmt="dataframe")
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error fetching data: {e}")
+        return None
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return None
     
     if frames.empty:
         print("No 360 data found for this match.")
@@ -158,15 +166,10 @@ def compute_360_tactical_metrics(match_id):
     
     summary.rename(columns={'run_speed_ms': 'peak_run_speed_ms'}, inplace=True)
     
-    print("\n--- Match Tactical Summary (Metric units: Meters & M/S) ---")
-    print(summary.to_markdown(index=False))
-    
-    # Save detailed metrics
-    metrics_df.to_csv(f"tactical_metrics_{match_id}.csv", index=False)
-    print(f"\nDetailed metrics saved to tactical_metrics_{match_id}.csv")
-    
     return summary
 
 if __name__ == "__main__":
     # Test with Euro 2024 Final: Spain vs England
-    compute_360_tactical_metrics(3943043)
+    res = compute_360_tactical_metrics(3943043)
+    if res is not None:
+        print(res.to_markdown(index=False))
