@@ -390,5 +390,5 @@ with tab_league:
         else:
             st.info("Rankings available for legacy European leagues.")
 
-st.sidebar.markdown("---\")
+st.sidebar.markdown("---")
 st.sidebar.info(f"Data Source: {data_source}")
