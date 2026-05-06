@@ -37,46 +37,72 @@ data_source = st.sidebar.radio("Data Source", ["Legacy Wyscout (2017/18)", "Late
 
 # StatsBomb Data Fetching
 @st.cache_data
-def get_sb_competitions():
+def get_sb_competitions(only_360=False):
     comps = sb.competitions()
     # Filter for competitions with available match data
     comps = comps[comps['match_available'].notna()]
+    
+    if only_360:
+        # Filter for competitions that have 360 data available
+        comps = comps[comps['match_available_360'].notna()]
+        
     # Create a display name: "Competition Name (Season)"
     comps['display_name'] = comps['competition_name'] + " (" + comps['season_name'] + ")"
     # Create a map for easy lookup
     comp_dict = {row['display_name']: (row['competition_id'], row['season_id']) for _, row in comps.iterrows()}
     return comp_dict
 
+# Logic for 360 filtering
+only_360 = False
 if data_source == "Latest StatsBomb (Open Data)":
+    st.sidebar.divider()
+    analysis_mode = st.sidebar.selectbox("Analysis Mode", ["Full Match Analysis", "Tactical 360 Insights (Spatial)"])
+    only_360 = (analysis_mode == "Tactical 360 Insights (Spatial)")
+    
+    if only_360:
+        st.sidebar.info("Filtering for competitions/matches with 360-degree spatial data.")
+    
     st.sidebar.warning("StatsBomb integration is in PROTOTYPE mode. Data is fetched live from StatsBomb Open Data.")
-    sb_comp_map = get_sb_competitions()
-    chosen_league = st.sidebar.selectbox("Select Competition", sorted(list(sb_comp_map.keys())))
+    sb_comp_map = get_sb_competitions(only_360=only_360)
+    
+    if not sb_comp_map:
+        st.sidebar.error("No 360-enabled competitions found.")
+        chosen_league = None
+    else:
+        chosen_league = st.sidebar.selectbox("Select Competition", sorted(list(sb_comp_map.keys())))
 else:
     chosen_league = st.sidebar.selectbox("Select League", leagues)
 
 # Function to get teams and matches
 @st.cache_data
-def get_sb_matches(league):
+def get_sb_matches(league, only_360=False):
     if league in sb_comp_map:
         cid, sid = sb_comp_map[league]
-        return sb.matches(competition_id=cid, season_id=sid)
+        matches = sb.matches(competition_id=cid, season_id=sid)
+        if only_360:
+            # Ensure the match has 360 data
+            matches = matches[matches['match_available_360'].notna()]
+        return matches
     return pd.DataFrame()
 
 if data_source == "Latest StatsBomb (Open Data)":
-    matches_df = get_sb_matches(chosen_league)
-    if not matches_df.empty:
-        # Get all unique teams that participated
-        all_teams = sorted(list(set(matches_df["home_team"]) | set(matches_df["away_team"])))
-        home_team = st.sidebar.selectbox("Home Team", all_teams)
-        
-        # Filter away teams: find all opponents of the selected home team in any match
-        opponents = set(matches_df[matches_df.home_team == home_team]["away_team"]) | \
-                    set(matches_df[matches_df.away_team == home_team]["home_team"])
-        
-        away_options = sorted(list(opponents))
-        away_team = st.sidebar.selectbox("Away Team", away_options)
+    if chosen_league:
+        matches_df = get_sb_matches(chosen_league, only_360=only_360)
+        if not matches_df.empty:
+            # Get all unique teams that participated
+            all_teams = sorted(list(set(matches_df["home_team"]) | set(matches_df["away_team"])))
+            home_team = st.sidebar.selectbox("Home Team", all_teams)
+            
+            # Filter away teams: find all opponents of the selected home team in any match
+            opponents = set(matches_df[matches_df.home_team == home_team]["away_team"]) | \
+                        set(matches_df[matches_df.away_team == home_team]["home_team"])
+            
+            away_options = sorted(list(opponents))
+            away_team = st.sidebar.selectbox("Away Team", away_options)
+        else:
+            st.sidebar.error("No matches found for this selection.")
+            home_team, away_team = None, None
     else:
-        st.sidebar.error("Failed to fetch matches for this competition. Try another one.")
         home_team, away_team = None, None
 else:
     # Legacy logic for teams
@@ -281,49 +307,51 @@ with tab_tactical:
     """)
     
     if data_source == "Latest StatsBomb (Open Data)":
-        # Find the match_id and check 360 availability
-        cid, sid = sb_comp_map[chosen_league]
-        matches = sb.matches(competition_id=cid, season_id=sid)
-        match = matches[((matches.home_team == home_team) & (matches.away_team == away_team)) | 
-                        ((matches.home_team == away_team) & (matches.away_team == home_team))]
-        
-        if not match.empty:
-            match_id = match.iloc[0].match_id
-            # Check for 360 availability using 'match_available_360' column
-            # Some competitions have the column but entries might be 'None' or 'available'
-            is_360_available = match.iloc[0].get('match_available_360') is not None
+        if not only_360:
+            st.info("💡 **Tip**: Switch the **Analysis Mode** in the sidebar to 'Tactical 360 Insights' to filter for 360-enabled matches.")
             
-            if is_360_available:
-                if st.button("Run 360 Tactical Analysis", key="btn_360"):
-                    from compute_tactical_metrics import compute_360_tactical_metrics
-                    
-                    with st.spinner("Extracting 360 frames and computing tactical metrics..."):
-                        summary = compute_360_tactical_metrics(match_id)
+        if chosen_league and home_team and away_team:
+            # Find the match_id and check 360 availability
+            cid, sid = sb_comp_map[chosen_league]
+            matches = sb.matches(competition_id=cid, season_id=sid)
+            match = matches[((matches.home_team == home_team) & (matches.away_team == away_team)) | 
+                            ((matches.home_team == away_team) & (matches.away_team == home_team))]
+            
+            if not match.empty:
+                match_id = match.iloc[0].match_id
+                is_360_available = match.iloc[0].get('match_available_360') is not None
+                
+                if is_360_available:
+                    if st.button("Run 360 Tactical Analysis", key="btn_360"):
+                        from compute_tactical_metrics import compute_360_tactical_metrics
                         
-                        if summary is not None:
-                            st.success("Tactical metrics successfully extracted!")
+                        with st.spinner("Extracting 360 frames and computing tactical metrics..."):
+                            summary = compute_360_tactical_metrics(match_id)
                             
-                            # Display Metrics in Columns
-                            cols = st.columns(2)
-                            for i, team_name in enumerate(summary['team'].unique()):
-                                team_stats = summary[summary['team'] == team_name].iloc[0]
-                                with cols[i % 2]:
-                                    st.markdown(f"### {team_name}")
-                                    st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
-                                    st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
-                                    st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
-                                    st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
-                                    st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
-                            
-                            st.divider()
-                            st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
-                        else:
-                            st.error("Failed to extract tactical metrics even though 360 data was marked available. This may be due to missing frames in the StatsBomb Open Data repository.")
+                            if summary is not None:
+                                st.success("Tactical metrics successfully extracted!")
+                                
+                                # Display Metrics in Columns
+                                cols = st.columns(2)
+                                for i, team_name in enumerate(summary['team'].unique()):
+                                    team_stats = summary[summary['team'] == team_name].iloc[0]
+                                    with cols[i % 2]:
+                                        st.markdown(f"### {team_name}")
+                                        st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
+                                        st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
+                                        st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
+                                        st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
+                                        st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
+                                
+                                st.divider()
+                                st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
+                            else:
+                                st.error("Failed to extract tactical metrics.")
+                else:
+                    st.warning(f"⚠️ **StatsBomb 360 data is NOT available** for this match.")
+                    st.info("Try a match from **UEFA Euro 2024**, **FIFA World Cup 2022**, or **La Liga 2020/21**.")
             else:
-                st.warning(f"⚠️ **StatsBomb 360 data is NOT available** for the match between {home_team} and {away_team} ({chosen_league}).")
-                st.info("Try a match from **UEFA Euro 2024**, **FIFA World Cup 2022**, or **La Liga 2020/21** for full 360 tactical insights.")
-        else:
-            st.error("Match not found.")
+                st.error("Match not found.")
     else:
         st.warning("StatsBomb 360 data is only available for 'Latest StatsBomb (Open Data)' source.")
 
@@ -362,5 +390,5 @@ with tab_league:
         else:
             st.info("Rankings available for legacy European leagues.")
 
-st.sidebar.markdown("---")
+st.sidebar.markdown("---\")
 st.sidebar.info(f"Data Source: {data_source}")
