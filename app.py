@@ -180,7 +180,7 @@ def data_generation(home_team_name, away_team_name, league_name, source):
 
 # Main content
 # Main content with Tabs
-tab_match, tab_team, tab_league = st.tabs(["🎯 Match Analysis", "🛡️ Team Analytics", "🏆 League Leaderboards"])
+tab_match, tab_team, tab_tactical, tab_league = st.tabs(["🎯 Match Analysis", "🛡️ Team Analytics", "🧠 Tactical Insights (360)", "🏆 League Leaderboards"])
 
 with tab_match:
     st.subheader("Match-wise Action Valuation")
@@ -273,6 +273,52 @@ with tab_team:
                     st.warning("Could not find enough data for this team.")
     else:
         st.info("Team analytics are available for StatsBomb Open Data.")
+
+with tab_tactical:
+    st.subheader("🧠 Tactical Insights (StatsBomb 360)")
+    st.markdown("""
+    This section uses **StatsBomb 360** high-fidelity data to analyze team shape, defensive posture, and off-the-ball runs.
+    """)
+    
+    if data_source == "Latest StatsBomb (Open Data)":
+        if st.button("Run 360 Tactical Analysis", key="btn_360"):
+            from compute_tactical_metrics import compute_360_tactical_metrics
+            
+            # Find the match_id
+            cid, sid = sb_comp_map[chosen_league]
+            matches = sb.matches(competition_id=cid, season_id=sid)
+            match = matches[((matches.home_team == home_team) & (matches.away_team == away_team)) | 
+                            ((matches.home_team == away_team) & (matches.away_team == home_team))]
+            
+            if not match.empty:
+                match_id = match.iloc[0].match_id
+                
+                with st.spinner("Extracting 360 frames and computing tactical metrics..."):
+                    summary = compute_360_tactical_metrics(match_id)
+                    
+                    if summary is not None:
+                        st.success("Tactical metrics successfully extracted!")
+                        
+                        # Display Metrics in Columns
+                        cols = st.columns(2)
+                        for i, team_name in enumerate(summary['team'].unique()):
+                            team_stats = summary[summary['team'] == team_name].iloc[0]
+                            with cols[i % 2]:
+                                st.markdown(f"### {team_name}")
+                                st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
+                                st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
+                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
+                                st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
+                                st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
+                        
+                        st.divider()
+                        st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
+                    else:
+                        st.warning("360 data is not available for this specific match. Please try a major tournament like Euro 2024 or World Cup 2022.")
+            else:
+                st.error("Match not found.")
+    else:
+        st.warning("StatsBomb 360 data is only available for 'Latest StatsBomb (Open Data)' source.")
 
 with tab_league:
     st.subheader(f"🏆 League Leaderboard: {chosen_league}")

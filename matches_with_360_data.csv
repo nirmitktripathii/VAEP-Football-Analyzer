@@ -1,0 +1,426 @@
+match_id,competition,season,match_date,home_team,away_team,home_score,away_score
+3895302,1. Bundesliga,2023/2024,2024-04-14,Bayer Leverkusen,Werder Bremen,5,0
+3895292,1. Bundesliga,2023/2024,2024-04-06,Union Berlin,Bayer Leverkusen,0,1
+3895333,1. Bundesliga,2023/2024,2024-05-05,Eintracht Frankfurt,Bayer Leverkusen,1,5
+3895340,1. Bundesliga,2023/2024,2024-05-12,Bochum,Bayer Leverkusen,0,5
+3895348,1. Bundesliga,2023/2024,2024-05-18,Bayer Leverkusen,Augsburg,2,1
+3895286,1. Bundesliga,2023/2024,2024-03-30,Bayer Leverkusen,Hoffenheim,2,1
+3895220,1. Bundesliga,2023/2024,2024-02-03,Darmstadt 98,Bayer Leverkusen,0,2
+3895250,1. Bundesliga,2023/2024,2024-02-23,Bayer Leverkusen,FSV Mainz 05,2,1
+3895266,1. Bundesliga,2023/2024,2024-03-10,Bayer Leverkusen,Wolfsburg,2,0
+3895275,1. Bundesliga,2023/2024,2024-03-17,Freiburg,Bayer Leverkusen,2,3
+3895180,1. Bundesliga,2023/2024,2023-12-17,Bayer Leverkusen,Eintracht Frankfurt,3,0
+3895134,1. Bundesliga,2023/2024,2023-11-04,Hoffenheim,Bayer Leverkusen,2,3
+3895121,1. Bundesliga,2023/2024,2023-10-29,Bayer Leverkusen,Freiburg,2,1
+3895107,1. Bundesliga,2023/2024,2023-10-08,Bayer Leverkusen,FC Köln,3,0
+3895074,1. Bundesliga,2023/2024,2023-09-15,Bayern Munich,Bayer Leverkusen,2,2
+3895139,1. Bundesliga,2023/2024,2023-11-12,Bayer Leverkusen,Union Berlin,4,0
+3895086,1. Bundesliga,2023/2024,2023-09-24,Bayer Leverkusen,FC Heidenheim,4,1
+3895320,1. Bundesliga,2023/2024,2024-04-27,Bayer Leverkusen,VfB Stuttgart,2,2
+3895309,1. Bundesliga,2023/2024,2024-04-21,Borussia Dortmund,Bayer Leverkusen,1,1
+3895258,1. Bundesliga,2023/2024,2024-03-03,FC Köln,Bayer Leverkusen,0,2
+3895244,1. Bundesliga,2023/2024,2024-02-17,FC Heidenheim,Bayer Leverkusen,1,2
+3895232,1. Bundesliga,2023/2024,2024-02-10,Bayer Leverkusen,Bayern Munich,3,0
+3895210,1. Bundesliga,2023/2024,2024-01-27,Bayer Leverkusen,Borussia Mönchengladbach,0,0
+3895202,1. Bundesliga,2023/2024,2024-01-20,RB Leipzig,Bayer Leverkusen,2,3
+3895194,1. Bundesliga,2023/2024,2024-01-13,Augsburg,Bayer Leverkusen,0,1
+3895182,1. Bundesliga,2023/2024,2023-12-20,Bayer Leverkusen,Bochum,4,0
+3895167,1. Bundesliga,2023/2024,2023-12-10,VfB Stuttgart,Bayer Leverkusen,1,1
+3895158,1. Bundesliga,2023/2024,2023-12-03,Bayer Leverkusen,Borussia Dortmund,1,1
+3895153,1. Bundesliga,2023/2024,2023-11-25,Werder Bremen,Bayer Leverkusen,0,3
+3895113,1. Bundesliga,2023/2024,2023-10-21,Wolfsburg,Bayer Leverkusen,1,2
+3895095,1. Bundesliga,2023/2024,2023-09-30,FSV Mainz 05,Bayer Leverkusen,0,3
+3895067,1. Bundesliga,2023/2024,2023-09-02,Bayer Leverkusen,Darmstadt 98,5,1
+3895060,1. Bundesliga,2023/2024,2023-08-26,Borussia Mönchengladbach,Bayer Leverkusen,0,3
+3895052,1. Bundesliga,2023/2024,2023-08-19,Bayer Leverkusen,RB Leipzig,3,2
+3857256,FIFA World Cup,2022,2022-12-02,Serbia,Switzerland,2,3
+3869151,FIFA World Cup,2022,2022-12-03,Argentina,Australia,2,1
+3857257,FIFA World Cup,2022,2022-11-30,Australia,Denmark,1,0
+3857258,FIFA World Cup,2022,2022-11-24,Brazil,Serbia,2,0
+3857288,FIFA World Cup,2022,2022-11-26,Tunisia,Australia,0,1
+3857267,FIFA World Cup,2022,2022-11-29,Ecuador,Senegal,1,2
+3869321,FIFA World Cup,2022,2022-12-09,Netherlands,Argentina,2,2
+3857287,FIFA World Cup,2022,2022-11-24,Uruguay,South Korea,0,0
+3869486,FIFA World Cup,2022,2022-12-10,Morocco,Portugal,1,0
+3869685,FIFA World Cup,2022,2022-12-18,Argentina,France,3,3
+3857260,FIFA World Cup,2022,2022-11-30,Saudi Arabia,Mexico,1,2
+3857264,FIFA World Cup,2022,2022-11-30,Poland,Argentina,0,2
+3857266,FIFA World Cup,2022,2022-11-26,France,Denmark,2,1
+3857289,FIFA World Cup,2022,2022-11-26,Argentina,Mexico,2,0
+3857269,FIFA World Cup,2022,2022-11-28,Brazil,Switzerland,1,0
+3857294,FIFA World Cup,2022,2022-11-29,Netherlands,Qatar,2,0
+3869254,FIFA World Cup,2022,2022-12-06,Portugal,Switzerland,6,1
+3869118,FIFA World Cup,2022,2022-12-04,England,Senegal,3,0
+3869684,FIFA World Cup,2022,2022-12-17,Croatia,Morocco,2,1
+3869519,FIFA World Cup,2022,2022-12-13,Argentina,Croatia,3,0
+3869354,FIFA World Cup,2022,2022-12-10,England,France,1,2
+3869552,FIFA World Cup,2022,2022-12-14,France,Morocco,2,0
+3869420,FIFA World Cup,2022,2022-12-09,Croatia,Brazil,1,1
+3869220,FIFA World Cup,2022,2022-12-06,Morocco,Spain,0,0
+3869219,FIFA World Cup,2022,2022-12-05,Japan,Croatia,1,1
+3869253,FIFA World Cup,2022,2022-12-05,Brazil,South Korea,4,1
+3869152,FIFA World Cup,2022,2022-12-04,France,Poland,3,1
+3869117,FIFA World Cup,2022,2022-12-03,Netherlands,United States,3,1
+3857270,FIFA World Cup,2022,2022-11-28,Portugal,Uruguay,2,0
+3857263,FIFA World Cup,2022,2022-11-27,Spain,Germany,1,1
+3857259,FIFA World Cup,2022,2022-11-28,Cameroon,Serbia,3,3
+3857295,FIFA World Cup,2022,2022-11-27,Japan,Costa Rica,0,1
+3857283,FIFA World Cup,2022,2022-11-27,Belgium,Morocco,0,2
+3857284,FIFA World Cup,2022,2022-11-23,Germany,Japan,1,2
+3857282,FIFA World Cup,2022,2022-11-21,United States,Wales,1,1
+3857286,FIFA World Cup,2022,2022-11-20,Qatar,Ecuador,0,2
+3857301,FIFA World Cup,2022,2022-11-25,Qatar,Senegal,1,3
+3857300,FIFA World Cup,2022,2022-11-22,Argentina,Saudi Arabia,1,2
+3857299,FIFA World Cup,2022,2022-11-28,South Korea,Ghana,2,3
+3857298,FIFA World Cup,2022,2022-11-24,Portugal,Ghana,3,2
+3857297,FIFA World Cup,2022,2022-11-26,Poland,Saudi Arabia,2,0
+3857296,FIFA World Cup,2022,2022-12-01,Croatia,Belgium,0,0
+3857293,FIFA World Cup,2022,2022-12-02,Ghana,Uruguay,0,2
+3857292,FIFA World Cup,2022,2022-12-01,Costa Rica,Germany,2,4
+3857291,FIFA World Cup,2022,2022-11-23,Spain,Costa Rica,7,0
+3857290,FIFA World Cup,2022,2022-11-24,Switzerland,Cameroon,1,0
+3857285,FIFA World Cup,2022,2022-11-21,Senegal,Netherlands,0,2
+3857281,FIFA World Cup,2022,2022-11-27,Croatia,Canada,4,1
+3857280,FIFA World Cup,2022,2022-12-02,Cameroon,Brazil,1,0
+3857279,FIFA World Cup,2022,2022-11-22,France,Australia,4,1
+3857278,FIFA World Cup,2022,2022-11-29,Iran,United States,0,1
+3857277,FIFA World Cup,2022,2022-11-23,Morocco,Croatia,0,0
+3857276,FIFA World Cup,2022,2022-12-01,Canada,Morocco,1,2
+3857275,FIFA World Cup,2022,2022-11-30,Tunisia,France,1,0
+3857274,FIFA World Cup,2022,2022-11-25,Netherlands,Ecuador,1,1
+3857273,FIFA World Cup,2022,2022-11-25,Wales,Iran,0,2
+3857272,FIFA World Cup,2022,2022-11-25,England,United States,0,0
+3857271,FIFA World Cup,2022,2022-11-21,England,Iran,6,2
+3857268,FIFA World Cup,2022,2022-11-23,Belgium,Canada,1,0
+3857265,FIFA World Cup,2022,2022-11-22,Mexico,Poland,0,0
+3857262,FIFA World Cup,2022,2022-12-02,South Korea,Portugal,2,1
+3857261,FIFA World Cup,2022,2022-11-29,Wales,England,0,3
+3857255,FIFA World Cup,2022,2022-12-01,Japan,Spain,2,1
+3857254,FIFA World Cup,2022,2022-11-22,Denmark,Tunisia,0,0
+3773386,La Liga,2020/2021,2020-10-31,Deportivo Alavés,Barcelona,1,1
+3773565,La Liga,2020/2021,2021-01-09,Granada,Barcelona,0,4
+3773457,La Liga,2020/2021,2021-05-16,Barcelona,Celta Vigo,1,2
+3773631,La Liga,2020/2021,2021-02-07,Real Betis,Barcelona,2,3
+3773665,La Liga,2020/2021,2021-03-06,Osasuna,Barcelona,0,2
+3773497,La Liga,2020/2021,2021-04-10,Real Madrid,Barcelona,2,1
+3773660,La Liga,2020/2021,2020-12-13,Barcelona,Levante UD,1,0
+3773593,La Liga,2020/2021,2020-09-27,Barcelona,Villarreal,4,0
+3773466,La Liga,2020/2021,2020-10-01,Celta Vigo,Barcelona,0,3
+3773585,La Liga,2020/2021,2020-10-24,Barcelona,Real Madrid,1,3
+3773552,La Liga,2020/2021,2021-01-03,Huesca,Barcelona,0,1
+3773672,La Liga,2020/2021,2020-10-04,Barcelona,Sevilla,1,1
+3773587,La Liga,2020/2021,2020-10-17,Getafe,Barcelona,1,0
+3773656,La Liga,2020/2021,2020-11-21,Atlético Madrid,Barcelona,1,0
+3773377,La Liga,2020/2021,2020-12-19,Barcelona,Valencia,2,2
+3773586,La Liga,2020/2021,2021-04-29,Barcelona,Granada,1,2
+3773372,La Liga,2020/2021,2021-05-08,Barcelona,Atlético Madrid,0,0
+3773387,La Liga,2020/2021,2021-05-11,Levante UD,Barcelona,3,3
+3773695,La Liga,2020/2021,2021-05-02,Valencia,Barcelona,2,3
+3773369,La Liga,2020/2021,2021-03-15,Barcelona,Huesca,4,1
+3773661,La Liga,2020/2021,2021-04-22,Barcelona,Getafe,5,2
+3773597,La Liga,2020/2021,2021-03-21,Real Sociedad,Barcelona,1,6
+3773523,La Liga,2020/2021,2020-12-16,Barcelona,Real Sociedad,2,1
+3773571,La Liga,2020/2021,2020-12-22,Real Valladolid,Barcelona,0,3
+3773428,La Liga,2020/2021,2020-12-05,Cádiz,Barcelona,2,1
+3764661,La Liga,2020/2021,2021-01-06,Athletic Club,Barcelona,2,3
+3773526,La Liga,2020/2021,2021-02-13,Barcelona,Deportivo Alavés,5,1
+3773474,La Liga,2020/2021,2021-04-05,Barcelona,Real Valladolid,1,0
+3773625,La Liga,2020/2021,2021-02-27,Sevilla,Barcelona,0,2
+3773403,La Liga,2020/2021,2021-01-31,Barcelona,Athletic Club,2,1
+3773547,La Liga,2020/2021,2020-11-29,Barcelona,Osasuna,4,0
+3773415,La Liga,2020/2021,2021-02-21,Barcelona,Cádiz,1,1
+3764440,La Liga,2020/2021,2021-02-24,Barcelona,Elche,3,0
+3773689,La Liga,2020/2021,2021-04-25,Villarreal,Barcelona,1,2
+3773477,La Liga,2020/2021,2020-11-07,Barcelona,Real Betis,5,2
+3838017,Ligue 1,2022/2023,2023-06-03,Paris Saint-Germain,Clermont Foot,2,3
+3837987,Ligue 1,2022/2023,2023-05-13,Paris Saint-Germain,AC Ajaccio,5,0
+3837928,Ligue 1,2022/2023,2023-04-02,Paris Saint-Germain,Lyon,0,1
+3837918,Ligue 1,2022/2023,2023-03-19,Paris Saint-Germain,Rennes,0,2
+3837902,Ligue 1,2022/2023,2023-03-11,Stade Brestois,Paris Saint-Germain,1,2
+3837885,Ligue 1,2022/2023,2023-02-26,Marseille,Paris Saint-Germain,0,3
+3837876,Ligue 1,2022/2023,2023-02-19,Paris Saint-Germain,Lille,4,3
+3837839,Ligue 1,2022/2023,2023-01-29,Paris Saint-Germain,Stade de Reims,1,1
+3837827,Ligue 1,2022/2023,2023-01-15,Rennes,Paris Saint-Germain,1,0
+3837818,Ligue 1,2022/2023,2023-01-11,Paris Saint-Germain,Angers,2,0
+3837785,Ligue 1,2022/2023,2022-11-13,Paris Saint-Germain,Auxerre,5,0
+3837747,Ligue 1,2022/2023,2022-10-16,Paris Saint-Germain,Marseille,1,0
+3837680,Ligue 1,2022/2023,2022-08-28,Paris Saint-Germain,AS Monaco,1,1
+3837659,Ligue 1,2022/2023,2022-08-13,Paris Saint-Germain,Montpellier,5,2
+3837650,Ligue 1,2022/2023,2022-08-06,Clermont Foot,Paris Saint-Germain,0,5
+3838004,Ligue 1,2022/2023,2023-05-27,Strasbourg,Paris Saint-Germain,1,1
+3837998,Ligue 1,2022/2023,2023-05-21,Auxerre,Paris Saint-Germain,1,2
+3837963,Ligue 1,2022/2023,2023-04-30,Paris Saint-Germain,Lorient,1,3
+3837954,Ligue 1,2022/2023,2023-04-21,Angers,Paris Saint-Germain,1,2
+3837947,Ligue 1,2022/2023,2023-04-15,Paris Saint-Germain,Lens,3,1
+3837938,Ligue 1,2022/2023,2023-04-08,OGC Nice,Paris Saint-Germain,0,2
+3837896,Ligue 1,2022/2023,2023-03-04,Paris Saint-Germain,Nantes,4,2
+3837859,Ligue 1,2022/2023,2023-02-04,Paris Saint-Germain,Toulouse,2,1
+3837844,Ligue 1,2022/2023,2023-02-01,Montpellier,Paris Saint-Germain,1,3
+3837771,Ligue 1,2022/2023,2022-10-29,Paris Saint-Germain,Troyes,4,3
+3837752,Ligue 1,2022/2023,2022-10-21,AC Ajaccio,Paris Saint-Germain,0,3
+3837727,Ligue 1,2022/2023,2022-10-01,Paris Saint-Germain,OGC Nice,2,1
+3837717,Ligue 1,2022/2023,2022-09-18,Lyon,Paris Saint-Germain,0,1
+3837706,Ligue 1,2022/2023,2022-09-10,Paris Saint-Germain,Stade Brestois,1,0
+3837695,Ligue 1,2022/2023,2022-09-03,Nantes,Paris Saint-Germain,0,3
+3837683,Ligue 1,2022/2023,2022-08-31,Toulouse,Paris Saint-Germain,0,3
+3837662,Ligue 1,2022/2023,2022-08-21,Lille,Paris Saint-Germain,1,7
+3802643,Ligue 1,2021/2022,2022-04-29,Strasbourg,Paris Saint-Germain,3,3
+3803000,Ligue 1,2021/2022,2022-04-09,Clermont Foot,Paris Saint-Germain,1,6
+3802802,Ligue 1,2021/2022,2022-01-23,Paris Saint-Germain,Stade de Reims,4,0
+3802696,Ligue 1,2021/2022,2021-08-29,Stade de Reims,Paris Saint-Germain,0,2
+3802699,Ligue 1,2021/2022,2021-10-29,Paris Saint-Germain,Lille,2,1
+3802685,Ligue 1,2021/2022,2021-12-04,Lens,Paris Saint-Germain,1,1
+3802665,Ligue 1,2021/2022,2022-05-14,Montpellier,Paris Saint-Germain,0,4
+3802752,Ligue 1,2021/2022,2021-09-19,Paris Saint-Germain,Lyon,2,1
+3802809,Ligue 1,2021/2022,2021-10-03,Rennes,Paris Saint-Germain,2,0
+3802676,Ligue 1,2021/2022,2022-04-23,Paris Saint-Germain,Lens,1,1
+3802983,Ligue 1,2021/2022,2022-04-17,Paris Saint-Germain,Marseille,2,1
+3802907,Ligue 1,2021/2022,2022-02-06,Lille,Paris Saint-Germain,1,5
+3802902,Ligue 1,2021/2022,2021-10-24,Marseille,Paris Saint-Germain,0,0
+3802818,Ligue 1,2021/2022,2022-04-03,Paris Saint-Germain,Lorient,5,1
+3802683,Ligue 1,2021/2022,2021-12-12,Paris Saint-Germain,AS Monaco,2,0
+3802690,Ligue 1,2021/2022,2021-12-22,Lorient,Paris Saint-Germain,1,1
+3802904,Ligue 1,2021/2022,2022-03-13,Paris Saint-Germain,Bordeaux,3,0
+3802837,Ligue 1,2021/2022,2021-11-28,Saint-Étienne,Paris Saint-Germain,1,3
+3802984,Ligue 1,2021/2022,2021-11-20,Paris Saint-Germain,Nantes,3,1
+3802805,Ligue 1,2021/2022,2022-03-05,OGC Nice,Paris Saint-Germain,1,0
+3802709,Ligue 1,2021/2022,2022-02-26,Paris Saint-Germain,Saint-Étienne,3,1
+3802948,Ligue 1,2021/2022,2022-05-21,Paris Saint-Germain,Metz,5,0
+3802930,Ligue 1,2021/2022,2022-05-08,Paris Saint-Germain,Troyes,2,2
+3802793,Ligue 1,2021/2022,2021-12-01,Paris Saint-Germain,OGC Nice,0,0
+3802839,Ligue 1,2021/2022,2022-02-19,Nantes,Paris Saint-Germain,3,1
+3802795,Ligue 1,2021/2022,2022-02-11,Paris Saint-Germain,Rennes,1,0
+3877060,Major League Soccer,2023,2023-08-27,New York Red Bulls,Inter Miami,0,2
+3877090,Major League Soccer,2023,2023-09-04,LAFC,Inter Miami,1,3
+3877194,Major League Soccer,2023,2023-10-22,Charlotte,Inter Miami,1,0
+3877072,Major League Soccer,2023,2023-08-31,Inter Miami,Nashville SC,0,0
+3877170,Major League Soccer,2023,2023-10-08,Inter Miami,Cincinnati,0,1
+3877115,Major League Soccer,2023,2023-09-21,Inter Miami,Toronto FC,4,0
+3942819,UEFA Euro,2024,2024-07-10,Netherlands,England,1,2
+3943043,UEFA Euro,2024,2024-07-14,Spain,England,2,1
+3942752,UEFA Euro,2024,2024-07-09,Spain,France,2,1
+3942382,UEFA Euro,2024,2024-07-06,Netherlands,Turkey,2,1
+3942349,UEFA Euro,2024,2024-07-05,Portugal,France,0,0
+3930180,UEFA Euro,2024,2024-06-25,Netherlands,Austria,2,3
+3930171,UEFA Euro,2024,2024-06-20,Denmark,England,1,1
+3942227,UEFA Euro,2024,2024-07-06,England,Switzerland,1,1
+3942226,UEFA Euro,2024,2024-07-05,Spain,Germany,2,1
+3938645,UEFA Euro,2024,2024-06-26,Ukraine,Belgium,0,0
+3930184,UEFA Euro,2024,2024-06-26,Czech Republic,Turkey,1,2
+3941022,UEFA Euro,2024,2024-07-02,Austria,Turkey,1,2
+3941021,UEFA Euro,2024,2024-07-02,Romania,Netherlands,0,3
+3941020,UEFA Euro,2024,2024-07-01,Portugal,Slovenia,0,0
+3941019,UEFA Euro,2024,2024-07-01,France,Belgium,1,0
+3941018,UEFA Euro,2024,2024-06-30,Spain,Georgia,4,1
+3941017,UEFA Euro,2024,2024-06-30,England,Slovakia,2,1
+3930182,UEFA Euro,2024,2024-06-25,Denmark,Serbia,0,0
+3930179,UEFA Euro,2024,2024-06-24,Albania,Spain,0,1
+3940983,UEFA Euro,2024,2024-06-29,Germany,Denmark,2,0
+3940878,UEFA Euro,2024,2024-06-29,Switzerland,Italy,2,0
+3930177,UEFA Euro,2024,2024-06-23,Scotland,Hungary,0,1
+3930173,UEFA Euro,2024,2024-06-21,Netherlands,France,0,0
+3930172,UEFA Euro,2024,2024-06-20,Spain,Italy,1,0
+3930167,UEFA Euro,2024,2024-06-19,Croatia,Albania,2,2
+3930168,UEFA Euro,2024,2024-06-19,Germany,Hungary,2,0
+3930165,UEFA Euro,2024,2024-06-17,Austria,France,0,1
+3930164,UEFA Euro,2024,2024-06-17,Belgium,Slovakia,0,1
+3930161,UEFA Euro,2024,2024-06-15,Italy,Albania,2,1
+3938637,UEFA Euro,2024,2024-06-16,Poland,Netherlands,1,2
+3938640,UEFA Euro,2024,2024-06-21,Slovakia,Ukraine,1,2
+3938642,UEFA Euro,2024,2024-06-22,Georgia,Czech Republic,1,1
+3938639,UEFA Euro,2024,2024-06-18,Turkey,Georgia,3,1
+3938641,UEFA Euro,2024,2024-06-21,Poland,Austria,1,3
+3938644,UEFA Euro,2024,2024-06-26,Georgia,Portugal,2,0
+3938643,UEFA Euro,2024,2024-06-25,France,Poland,1,1
+3938638,UEFA Euro,2024,2024-06-17,Romania,Ukraine,3,0
+3930183,UEFA Euro,2024,2024-06-26,Slovakia,Romania,1,1
+3930181,UEFA Euro,2024,2024-06-25,England,Slovenia,0,0
+3930178,UEFA Euro,2024,2024-06-24,Croatia,Italy,1,1
+3930176,UEFA Euro,2024,2024-06-23,Switzerland,Germany,1,1
+3930175,UEFA Euro,2024,2024-06-22,Belgium,Romania,2,0
+3930174,UEFA Euro,2024,2024-06-22,Turkey,Portugal,0,3
+3930170,UEFA Euro,2024,2024-06-20,Slovenia,Serbia,1,1
+3930169,UEFA Euro,2024,2024-06-19,Scotland,Switzerland,1,1
+3930166,UEFA Euro,2024,2024-06-18,Portugal,Czech Republic,2,1
+3930163,UEFA Euro,2024,2024-06-16,Serbia,England,0,1
+3930162,UEFA Euro,2024,2024-06-16,Slovenia,Denmark,1,1
+3930160,UEFA Euro,2024,2024-06-15,Spain,Croatia,3,0
+3930159,UEFA Euro,2024,2024-06-15,Hungary,Switzerland,1,3
+3930158,UEFA Euro,2024,2024-06-14,Germany,Scotland,5,1
+3795108,UEFA Euro,2020,2021-07-02,Switzerland,Spain,1,1
+3788769,UEFA Euro,2020,2021-06-21,Russia,Denmark,1,4
+3788766,UEFA Euro,2020,2021-06-20,Italy,Wales,1,0
+3795220,UEFA Euro,2020,2021-07-06,Italy,Spain,1,1
+3788761,UEFA Euro,2020,2021-06-18,Sweden,Slovakia,1,0
+3788764,UEFA Euro,2020,2021-06-19,Portugal,Germany,2,4
+3788773,UEFA Euro,2020,2021-06-23,Portugal,France,2,2
+3788755,UEFA Euro,2020,2021-06-16,Turkey,Wales,0,2
+3788754,UEFA Euro,2020,2021-06-16,Italy,Switzerland,3,0
+3788762,UEFA Euro,2020,2021-06-19,Spain,Poland,1,1
+3788760,UEFA Euro,2020,2021-06-18,Croatia,Czech Republic,1,1
+3788747,UEFA Euro,2020,2021-06-13,Austria,North Macedonia,3,1
+3788741,UEFA Euro,2020,2021-06-11,Turkey,Italy,0,3
+3795109,UEFA Euro,2020,2021-07-03,Czech Republic,Denmark,1,2
+3795187,UEFA Euro,2020,2021-07-03,Ukraine,England,0,4
+3788770,UEFA Euro,2020,2021-06-21,North Macedonia,Netherlands,0,3
+3795506,UEFA Euro,2020,2021-07-11,Italy,England,1,1
+3794688,UEFA Euro,2020,2021-06-29,England,Germany,2,0
+3794692,UEFA Euro,2020,2021-06-29,Sweden,Ukraine,1,2
+3794686,UEFA Euro,2020,2021-06-28,Croatia,Spain,3,5
+3794687,UEFA Euro,2020,2021-06-27,Belgium,Portugal,1,0
+3794685,UEFA Euro,2020,2021-06-26,Italy,Austria,2,1
+3788774,UEFA Euro,2020,2021-06-23,Germany,Hungary,2,2
+3788771,UEFA Euro,2020,2021-06-22,Croatia,Scotland,3,1
+3788772,UEFA Euro,2020,2021-06-22,Czech Republic,England,0,1
+3788768,UEFA Euro,2020,2021-06-21,Finland,Belgium,0,2
+3788767,UEFA Euro,2020,2021-06-21,Ukraine,Austria,0,1
+3788753,UEFA Euro,2020,2021-06-16,Finland,Russia,0,1
+3788765,UEFA Euro,2020,2021-06-20,Switzerland,Turkey,3,1
+3788763,UEFA Euro,2020,2021-06-19,Hungary,France,1,1
+3788759,UEFA Euro,2020,2021-06-18,England,Scotland,0,0
+3788758,UEFA Euro,2020,2021-06-17,Ukraine,North Macedonia,2,1
+3788757,UEFA Euro,2020,2021-06-17,Denmark,Belgium,1,2
+3788745,UEFA Euro,2020,2021-06-13,England,Croatia,1,0
+3795107,UEFA Euro,2020,2021-07-02,Belgium,Italy,1,2
+3795221,UEFA Euro,2020,2021-07-07,England,Denmark,2,1
+3794689,UEFA Euro,2020,2021-06-26,Wales,Denmark,0,4
+3788746,UEFA Euro,2020,2021-06-13,Netherlands,Ukraine,3,2
+3794691,UEFA Euro,2020,2021-06-28,France,Switzerland,3,3
+3794690,UEFA Euro,2020,2021-06-27,Netherlands,Czech Republic,0,2
+3788756,UEFA Euro,2020,2021-06-17,Netherlands,Austria,2,0
+3788749,UEFA Euro,2020,2021-06-14,Poland,Slovakia,1,2
+3788750,UEFA Euro,2020,2021-06-14,Spain,Sweden,0,0
+3788748,UEFA Euro,2020,2021-06-14,Scotland,Czech Republic,0,2
+3788751,UEFA Euro,2020,2021-06-15,France,Germany,1,0
+3788752,UEFA Euro,2020,2021-06-15,Hungary,Portugal,0,3
+3788742,UEFA Euro,2020,2021-06-12,Denmark,Finland,0,1
+3788775,UEFA Euro,2020,2021-06-23,Slovakia,Spain,0,5
+3788776,UEFA Euro,2020,2021-06-23,Sweden,Poland,3,2
+3788743,UEFA Euro,2020,2021-06-12,Belgium,Russia,3,0
+3788744,UEFA Euro,2020,2021-06-12,Wales,Switzerland,1,1
+4020846,UEFA Women's Euro,2025,2025-07-27,England Women's,Spain Women's,1,1
+4020077,UEFA Women's Euro,2025,2025-07-23,Germany Women's,Spain Women's,0,1
+4020005,UEFA Women's Euro,2025,2025-07-22,England Women's,Italy Women's,2,1
+4018357,UEFA Women's Euro,2025,2025-07-19,France Women's,Germany Women's,1,1
+4018356,UEFA Women's Euro,2025,2025-07-18,Spain Women's,Switzerland Women's,2,0
+4018355,UEFA Women's Euro,2025,2025-07-17,Sweden Women's,England Women's,2,2
+4018354,UEFA Women's Euro,2025,2025-07-16,Norway Women's,Italy Women's,1,2
+3998858,UEFA Women's Euro,2025,2025-07-13,England Women's,Wales,6,1
+3998859,UEFA Women's Euro,2025,2025-07-13,Netherlands Women's,France Women's,2,5
+3998857,UEFA Women's Euro,2025,2025-07-12,Poland Women's,Denmark Women's,3,2
+3998856,UEFA Women's Euro,2025,2025-07-12,Sweden Women's,Germany Women's,4,1
+3998855,UEFA Women's Euro,2025,2025-07-11,Italy Women's,Spain Women's,1,3
+3998854,UEFA Women's Euro,2025,2025-07-11,Portugal Women's,Belgium Women's,1,2
+3998852,UEFA Women's Euro,2025,2025-07-10,WNT Finland,Switzerland Women's,1,1
+3998853,UEFA Women's Euro,2025,2025-07-10,Norway Women's,Iceland Women's,4,3
+3998851,UEFA Women's Euro,2025,2025-07-09,England Women's,Netherlands Women's,4,0
+3998850,UEFA Women's Euro,2025,2025-07-09,France Women's,Wales,4,1
+3998848,UEFA Women's Euro,2025,2025-07-08,Poland Women's,Sweden Women's,0,3
+3998849,UEFA Women's Euro,2025,2025-07-08,Germany Women's,Denmark Women's,2,1
+3998846,UEFA Women's Euro,2025,2025-07-07,Portugal Women's,Italy Women's,1,1
+3998847,UEFA Women's Euro,2025,2025-07-07,Spain Women's,Belgium Women's,6,2
+3998844,UEFA Women's Euro,2025,2025-07-06,Switzerland Women's,Iceland Women's,2,0
+3998845,UEFA Women's Euro,2025,2025-07-06,Norway Women's,WNT Finland,2,1
+3998837,UEFA Women's Euro,2025,2025-07-02,Switzerland Women's,Norway Women's,1,2
+3998842,UEFA Women's Euro,2025,2025-07-05,Wales,Netherlands Women's,0,3
+3998843,UEFA Women's Euro,2025,2025-07-05,France Women's,England Women's,2,1
+3998840,UEFA Women's Euro,2025,2025-07-04,Germany Women's,Poland Women's,2,0
+3998839,UEFA Women's Euro,2025,2025-07-03,Spain Women's,Portugal Women's,5,0
+3998838,UEFA Women's Euro,2025,2025-07-03,Belgium Women's,Italy Women's,0,1
+3998836,UEFA Women's Euro,2025,2025-07-02,Iceland Women's,WNT Finland,0,1
+3998841,UEFA Women's Euro,2025,2025-07-04,Denmark Women's,Sweden Women's,0,1
+3835331,UEFA Women's Euro,2022,2022-07-13,Sweden Women's,Switzerland Women's,2,1
+3835324,UEFA Women's Euro,2022,2022-07-09,Netherlands Women's,Sweden Women's,1,1
+3844384,UEFA Women's Euro,2022,2022-07-20,England Women's,Spain Women's,2,1
+3847567,UEFA Women's Euro,2022,2022-07-31,England Women's,Germany Women's,2,1
+3845506,UEFA Women's Euro,2022,2022-07-26,England Women's,Sweden Women's,4,0
+3835335,UEFA Women's Euro,2022,2022-07-15,Northern Ireland,England Women's,0,5
+3835323,UEFA Women's Euro,2022,2022-07-09,Portugal Women's,Switzerland Women's,2,2
+3835325,UEFA Women's Euro,2022,2022-07-10,France Women's,Italy Women's,5,1
+3835320,UEFA Women's Euro,2022,2022-07-07,Norway Women's,Northern Ireland,4,1
+3845507,UEFA Women's Euro,2022,2022-07-27,Germany Women's,France Women's,2,1
+3844387,UEFA Women's Euro,2022,2022-07-23,France Women's,Netherlands Women's,1,0
+3844385,UEFA Women's Euro,2022,2022-07-21,Germany Women's,Austria Women's,2,0
+3844386,UEFA Women's Euro,2022,2022-07-22,Sweden Women's,Belgium Women's,1,0
+3835342,UEFA Women's Euro,2022,2022-07-18,Iceland Women's,France Women's,1,1
+3835337,UEFA Women's Euro,2022,2022-07-16,Denmark Women's,Spain Women's,0,1
+3835338,UEFA Women's Euro,2022,2022-07-16,WNT Finland,Germany Women's,0,3
+3835330,UEFA Women's Euro,2022,2022-07-12,Germany Women's,Spain Women's,2,0
+3835329,UEFA Women's Euro,2022,2022-07-12,Denmark Women's,WNT Finland,1,0
+3835322,UEFA Women's Euro,2022,2022-07-08,Germany Women's,Denmark Women's,4,0
+3835332,UEFA Women's Euro,2022,2022-07-13,Netherlands Women's,Portugal Women's,3,2
+3835327,UEFA Women's Euro,2022,2022-07-11,England Women's,Norway Women's,8,0
+3835326,UEFA Women's Euro,2022,2022-07-10,Belgium Women's,Iceland Women's,1,1
+3835341,UEFA Women's Euro,2022,2022-07-18,Italy Women's,Belgium Women's,0,1
+3835340,UEFA Women's Euro,2022,2022-07-17,Sweden Women's,Portugal Women's,5,0
+3835339,UEFA Women's Euro,2022,2022-07-17,Switzerland Women's,Netherlands Women's,1,4
+3835336,UEFA Women's Euro,2022,2022-07-15,Austria Women's,Norway Women's,1,0
+3835334,UEFA Women's Euro,2022,2022-07-14,Italy Women's,Iceland Women's,1,1
+3835328,UEFA Women's Euro,2022,2022-07-11,Austria Women's,Northern Ireland,2,0
+3835333,UEFA Women's Euro,2022,2022-07-14,France Women's,Belgium Women's,2,1
+3835321,UEFA Women's Euro,2022,2022-07-08,Spain Women's,WNT Finland,4,1
+3835319,UEFA Women's Euro,2022,2022-07-06,England Women's,Austria Women's,1,0
+3904629,Women's World Cup,2023,2023-08-16,Australia Women's,England Women's,1,3
+3906390,Women's World Cup,2023,2023-08-20,Spain Women's,England Women's,1,0
+3906389,Women's World Cup,2023,2023-08-19,Sweden Women's,Australia Women's,2,0
+3904628,Women's World Cup,2023,2023-08-15,Spain Women's,Sweden Women's,2,1
+3893806,Women's World Cup,2023,2023-07-26,Spain Women's,Zambia Women's,5,0
+3893801,Women's World Cup,2023,2023-07-24,Brazil Women's,Panama Women's,4,0
+3893797,Women's World Cup,2023,2023-07-23,Netherlands Women's,Portugal Women's,1,0
+3893822,Women's World Cup,2023,2023-07-31,Japan Women's,Spain Women's,4,0
+3893814,Women's World Cup,2023,2023-07-29,Sweden Women's,Italy Women's,5,0
+3893790,Women's World Cup,2023,2023-07-21,Nigeria Women's,Canada Women's,0,0
+3901832,Women's World Cup,2023,2023-08-08,Colombia Women's,Jamaica Women's,1,0
+3902968,Women's World Cup,2023,2023-08-12,Australia Women's,France Women's,0,0
+3902967,Women's World Cup,2023,2023-08-12,England Women's,Colombia Women's,2,1
+3901797,Women's World Cup,2023,2023-08-06,Sweden Women's,United States Women's,0,0
+3901796,Women's World Cup,2023,2023-08-06,Netherlands Women's,South Africa Women's,2,0
+3902240,Women's World Cup,2023,2023-08-11,Spain Women's,Netherlands Women's,2,1
+3902239,Women's World Cup,2023,2023-08-11,Japan Women's,Sweden Women's,1,2
+3893808,Women's World Cup,2023,2023-07-27,United States Women's,Netherlands Women's,1,1
+3901833,Women's World Cup,2023,2023-08-08,France Women's,Morocco Women's,4,0
+3893826,Women's World Cup,2023,2023-08-01,Portugal Women's,United States Women's,0,0
+3901736,Women's World Cup,2023,2023-08-07,Australia Women's,Denmark Women's,2,0
+3901735,Women's World Cup,2023,2023-08-07,England Women's,Nigeria Women's,0,0
+3901734,Women's World Cup,2023,2023-08-05,Japan Women's,Norway Women's,3,1
+3901733,Women's World Cup,2023,2023-08-05,Switzerland Women's,Spain Women's,1,5
+3893823,Women's World Cup,2023,2023-07-31,Costa Rica Women's,Zambia Women's,1,3
+3893811,Women's World Cup,2023,2023-07-28,England Women's,Denmark Women's,1,0
+3893812,Women's World Cup,2023,2023-07-28,Argentina Women's,South Africa Women's,2,2
+3893813,Women's World Cup,2023,2023-07-28,China PR Women's,Haiti Women's,1,0
+3893810,Women's World Cup,2023,2023-07-27,Portugal Women's,Vietnam Women's,2,0
+3893809,Women's World Cup,2023,2023-07-27,Australia Women's,Nigeria Women's,2,3
+3893807,Women's World Cup,2023,2023-07-26,Canada Women's,Republic of Ireland Women's,2,1
+3893804,Women's World Cup,2023,2023-07-25,Switzerland Women's,Norway Women's,0,0
+3893788,Women's World Cup,2023,2023-07-20,Australia Women's,Republic of Ireland Women's,1,0
+3893798,Women's World Cup,2023,2023-07-23,France Women's,Jamaica Women's,0,0
+3893789,Women's World Cup,2023,2023-07-21,Philippines Women's,Switzerland Women's,0,2
+3893794,Women's World Cup,2023,2023-07-22,England Women's,Haiti Women's,1,0
+3893792,Women's World Cup,2023,2023-07-22,United States Women's,Vietnam Women's,3,0
+3893791,Women's World Cup,2023,2023-07-21,Spain Women's,Costa Rica Women's,3,0
+3893787,Women's World Cup,2023,2023-07-20,New Zealand Women's,Norway Women's,1,0
+3893834,Women's World Cup,2023,2023-08-03,Morocco Women's,Colombia Women's,1,0
+3893833,Women's World Cup,2023,2023-08-03,Korea Republic Women's,Germany Women's,1,1
+3893832,Women's World Cup,2023,2023-08-02,Jamaica Women's,Brazil Women's,0,0
+3893831,Women's World Cup,2023,2023-08-02,South Africa Women's,Italy Women's,3,2
+3893830,Women's World Cup,2023,2023-08-02,Argentina Women's,Sweden Women's,0,2
+3893829,Women's World Cup,2023,2023-08-02,Panama Women's,France Women's,3,6
+3893828,Women's World Cup,2023,2023-08-01,China PR Women's,England Women's,1,6
+3893827,Women's World Cup,2023,2023-08-01,Vietnam Women's,Netherlands Women's,0,7
+3893825,Women's World Cup,2023,2023-08-01,Haiti Women's,Denmark Women's,0,2
+3893824,Women's World Cup,2023,2023-07-31,Republic of Ireland Women's,Nigeria Women's,0,0
+3893821,Women's World Cup,2023,2023-07-31,Canada Women's,Australia Women's,0,4
+3893820,Women's World Cup,2023,2023-07-30,Norway Women's,Philippines Women's,6,0
+3893819,Women's World Cup,2023,2023-07-30,Korea Republic Women's,Morocco Women's,0,1
+3893818,Women's World Cup,2023,2023-07-30,Germany Women's,Colombia Women's,1,2
+3893817,Women's World Cup,2023,2023-07-30,Switzerland Women's,New Zealand Women's,0,0
+3893816,Women's World Cup,2023,2023-07-29,Panama Women's,Jamaica Women's,0,1
+3893815,Women's World Cup,2023,2023-07-29,France Women's,Brazil Women's,2,1
+3893805,Women's World Cup,2023,2023-07-26,Japan Women's,Costa Rica Women's,2,0
+3893803,Women's World Cup,2023,2023-07-25,New Zealand Women's,Philippines Women's,0,1
+3893802,Women's World Cup,2023,2023-07-25,Colombia Women's,Korea Republic Women's,2,0
+3893800,Women's World Cup,2023,2023-07-24,Italy Women's,Argentina Women's,1,0
+3893799,Women's World Cup,2023,2023-07-24,Germany Women's,Morocco Women's,6,0
+3893796,Women's World Cup,2023,2023-07-23,Sweden Women's,South Africa Women's,2,1
+3893795,Women's World Cup,2023,2023-07-22,Denmark Women's,China PR Women's,1,0
+3893793,Women's World Cup,2023,2023-07-22,Zambia Women's,Japan Women's,0,5
