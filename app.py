@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import matplotsoccer
+from statsbombpy import sb
 from Automated_Goal_plots import id_return, nice_time
 
 # Page configuration
@@ -34,7 +35,6 @@ data_source = st.sidebar.radio("Data Source", ["Legacy Wyscout (2017/18)", "Late
 # StatsBomb Data Fetching
 @st.cache_data
 def get_sb_competitions():
-    from statsbombpy import sb
     comps = sb.competitions()
     # Filter for competitions with available match data
     comps = comps[comps['match_available'].notna()]
@@ -54,7 +54,6 @@ else:
 # Function to get teams and matches
 @st.cache_data
 def get_sb_matches(league):
-    from statsbombpy import sb
     if league in sb_comp_map:
         cid, sid = sb_comp_map[league]
         return sb.matches(competition_id=cid, season_id=sid)
@@ -101,7 +100,6 @@ display_option = st.sidebar.radio("Display Option", ["Goal Plots", "VAEP/xT Rank
 # Data Generation Logic (adapted for both sources)
 def data_generation(home_team_name, away_team_name, league_name, source):
     if source == "Latest StatsBomb (Open Data)":
-        from statsbombpy import sb
         from socceraction.data.statsbomb import StatsBombLoader
         import socceraction.spadl as spadl
         
@@ -204,6 +202,12 @@ with tab_match:
                         scorer = goal_action["short_name"]
                         team = goal_action["team_name"]
                         minute = int(goal_action["time_seconds"] // 60)
+                        
+                        # Ensure all required columns for plotting exist in 'a'
+                        if "nice_time" not in a.columns:
+                            a["nice_time"] = a.apply(nice_time, axis=1)
+                        if "short_name" not in a.columns and "player_name" in a.columns:
+                            a["short_name"] = a["player_name"]
                         
                         st.markdown(f"**Goal {i+1}: {scorer} ({team})** - {minute}'")
                         fig, ax = plt.subplots(figsize=(10, 7))
