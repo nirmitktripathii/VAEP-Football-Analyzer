@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import matplotsoccer
 from statsbombpy import sb
 from Automated_Goal_plots import id_return, nice_time
+import socceraction.spadl as spadl
+import socceraction.xthreat as xT
+from compute_xt_statsbomb import FootballAnalyticsEngine
 
 # Page configuration
 st.set_page_config(page_title="Football VAEP Analyzer", layout="wide")
@@ -101,7 +104,6 @@ display_option = st.sidebar.radio("Display Option", ["Goal Plots", "VAEP/xT Rank
 def data_generation(home_team_name, away_team_name, league_name, source):
     if source == "Latest StatsBomb (Open Data)":
         from socceraction.data.statsbomb import StatsBombLoader
-        import socceraction.spadl as spadl
         
         cid, sid = sb_comp_map[league_name]
         loader = StatsBombLoader()
@@ -228,7 +230,6 @@ with tab_match:
                 # Match VAEP/xT Ranking
                 st.markdown(f"### 📊 Player Impact (xT) Ranking")
                 if data_source == "Latest StatsBomb (Open Data)":
-                    import socceraction.xthreat as xT
                     xt_model = xT.ExpectedThreat(l=16, w=12)
                     xt_model.fit(actions)
                     actions["xt_value"] = xt_model.rate(actions)
@@ -245,7 +246,6 @@ with tab_team:
     st.subheader(f"🛡️ Team Analytics: {home_team}")
     if data_source == "Latest StatsBomb (Open Data)":
         if st.button(f"Analyze {home_team} Season Contribution"):
-            from compute_xt_statsbomb import FootballAnalyticsEngine
             engine = FootballAnalyticsEngine()
             comp_id, season_id = sb_comp_map[chosen_league]
             
@@ -279,7 +279,6 @@ with tab_league:
     if data_source == "Latest StatsBomb (Open Data)":
         sample_size = st.slider("Number of matches to analyze", 1, 50, 5)
         if st.button("Generate Season Rankings"):
-            from compute_xt_statsbomb import FootballAnalyticsEngine
             engine = FootballAnalyticsEngine()
             comp_id, season_id = sb_comp_map[chosen_league]
             
