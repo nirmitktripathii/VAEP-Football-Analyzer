@@ -8,6 +8,7 @@ from Automated_Goal_plots import id_return, nice_time
 import socceraction.spadl as spadl
 import socceraction.xthreat as xT
 from compute_xt_statsbomb import FootballAnalyticsEngine
+import google.generativeai as genai
 
 # Page configuration
 st.set_page_config(page_title="Football VAEP Analyzer", layout="wide")
@@ -51,35 +52,51 @@ def get_sb_competitions(only_360_filter=False):
 def get_sb_matches(cid, sid):
     return sb.matches(competition_id=cid, season_id=sid)
 
-# --- Tactical Report Generator (Professional Format) ---
+# --- LLM Setup ---
+st.sidebar.divider()
+st.sidebar.subheader("🤖 Tactical Intelligence AI")
+gemini_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Gemini API key to enable LLM-powered scouting reports.")
+if gemini_key:
+    genai.configure(api_key=gemini_key)
+    llm_model = genai.GenerativeModel('gemini-1.5-flash')
+else:
+    llm_model = None
+
+# --- Tactical Report Generator (LLM Powered) ---
 
 def generate_technical_report(summary):
     if summary is None or summary.empty:
         return "No data available for tactical analysis."
     
-    report = "### 📋 Match Tactical Intelligence Assessment\n\n"
+    if not llm_model:
+        return "⚠️ **LLM Integration Required**: Please enter a Gemini API Key in the sidebar to generate a long-form tactical narrative."
+
+    # Prepare KPI JSON for LLM
+    kpi_json = summary.to_json(orient='records')
     
-    for _, stats in summary.iterrows():
-        team = stats['team']
-        report += f"#### **{team} Tactical Profile**\n"
-        
-        # Tactical/Spatial Insight
-        if stats['def_line_height'] > 48:
-            tactical = f"The defensive structure was characterized by high compression with a **{stats['def_line_height']:.1f}m** average line height, effectively restricting opponent buildup space."
-        else:
-            tactical = f"A deep defensive posture (**{stats['def_line_height']:.1f}m**) was maintained, focusing on low-block resilience but limiting immediate transition verticality."
-            
-        # Transition/Physical Insight
-        if stats['peak_run_speed_ms'] > 8.5:
-            transition = f"Exceptional physical commitment was evident in the final third, with peak off-the-ball run velocities reaching **{stats['peak_run_speed_ms']:.1f} m/s**, consistently challenging the opponent's defensive shoulder."
-        else:
-            transition = f"Transition phases were more measured, with peak velocities capped at **{stats['peak_run_speed_ms']:.1f} m/s**, suggesting a preference for structured buildup over explosive counters."
-            
-        report += f"*   **Technical Analysis**: {tactical}\n"
-        report += f"*   **Tactical Assessment**: {transition}\n"
-        report += f"*   **Spatial Dynamics**: Utilization of pitch width (**{stats['team_width']:.1f}m**) against a density of **{stats['congestion_5m']:.2f}** indicates efficient control of half-spaces.\n\n"
-        
-    return report
+    prompt = f"""
+    SYSTEM PROMPT:
+    Assuming you are a mix of Pep Guardiola (tactical coach) and Sir Alex Ferguson (man and opponent management and analysis with 35+ years of professional football experience at the highest footballing level- Premier League and Champions League).
+    
+    TASK:
+    Create a proper tactical report on the home team and the away team on the basis of the metrics and KPIs provided below.
+    Generate a unique, long-form narrative that analyzes their defensive posture, transition speed, and spatial control.
+    
+    RULES:
+    1. Do NOT output "Guardiola (The Professor)" or "Ferguson (The Gaffer)" terms explicitly. 
+    2. These terms are for your internal analysis and report generation only.
+    3. Use professional, elite scouting language.
+    4. Focus on the data: {kpi_json}
+    
+    Format the output with clear headers for each team and a strategic conclusion.
+    """
+    
+    try:
+        with st.spinner("AI Scout is analyzing the data..."):
+            response = llm_model.generate_content(prompt)
+            return response.text
+    except Exception as e:
+        return f"Error generating AI report: {str(e)}"
 
 # --- Sidebar Logic ---
 
