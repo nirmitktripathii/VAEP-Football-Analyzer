@@ -23,17 +23,14 @@ def compute_360_tactical_metrics(match_id):
             team_events['x'] = team_events['location'].apply(lambda l: l[0])
             team_events['y'] = team_events['location'].apply(lambda l: l[1])
             
-            medians = team_events.groupby(['player_id', 'player_name'])[['x', 'y']].median().reset_index()
+            medians = team_events.groupby(['player_id', 'player'])[['x', 'y']].median().reset_index()
+            medians = medians.rename(columns={'player': 'player_name'})
             
-            # 360 Fallback
-            try:
-                frames = sb.frames(match_id=match_id, fmt="dataframe")
-                if frames is not None and not frames.empty:
-                    def_line = frames[frames['teammate'] == True]['location'].apply(lambda l: l[0]).mean()
-                else:
-                    def_line = medians['x'].min() if not medians.empty else 40.0
-            except:
-                def_line = medians['x'].min() if not medians.empty else 40.0
+            if not medians.empty:
+                sorted_x = sorted(medians['x'].tolist())
+                def_line = sorted_x[1] if len(sorted_x) > 1 else sorted_x[0]
+            else:
+                def_line = 40.0
 
             width = medians['y'].max() - medians['y'].min() if not medians.empty else 40.0
             length = medians['x'].max() - medians['x'].min() if not medians.empty else 30.0
@@ -41,7 +38,7 @@ def compute_360_tactical_metrics(match_id):
             summary_data.append({
                 'team': team,
                 'def_line_height': def_line,
-                'congestion_5m': 2.2,
+                'congestion_5m': 2.2, 
                 'runners_on_shoulder': 1.3,
                 'peak_run_speed_ms': 8.5,
                 'team_width': width,
