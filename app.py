@@ -231,6 +231,7 @@ with tab_match:
                         for collection in ax.collections: collection.set_sizes([15])
                         st.pyplot(fig)
                         plt.close(fig)
+                        plt.close(fig)
 
                 st.divider()
                 # Match VAEP/xT Ranking
@@ -318,20 +319,20 @@ with tab_tactical:
                             team_stats = summary[summary['team'] == team_name].iloc[0]
                             with cols[i % 2]:
                                 st.markdown(f"### {team_name}")
-                                st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
+                                st.metric("Defensive Line Height", f"{team_stats['def_line_height_m']:.1f}m | {team_stats['def_line_height_yds']:.1f} yds")
+                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_m']:.1f} m/s | {team_stats['peak_run_speed_yds']:.1f} yds/s")
+                                st.metric("Team Width", f"{team_stats['team_width_m']:.1f}m | {team_stats['team_width_yds']:.1f} yds")
+                                st.metric("Team Length", f"{team_stats['team_length_m']:.1f}m | {team_stats['team_length_yds']:.1f} yds")
                                 st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
-                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
                                 st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
-                                st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
                         
                         st.divider()
                         st.markdown("### 📋 Technical Scouting Report")
-                        if llm_reporter:
-                            with st.spinner("Generating tactical intelligence report via LLM..."):
-                                # Convert summary to JSON for LLM
-                                kpi_json = summary.to_dict(orient='records')
-                                report = llm_reporter.generate_report(kpi_json)
-                                st.markdown(report)
+                        with st.spinner("Generating tactical intelligence report via LLM..."):
+                            # Convert summary to JSON for LLM
+                            kpi_json = summary.to_dict(orient='records')
+                            report = llm_reporter.generate_report(kpi_json)
+                            st.markdown(report)
                         
                         st.divider()
                         st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
