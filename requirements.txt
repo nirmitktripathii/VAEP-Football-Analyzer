@@ -9,4 +9,4 @@ statsbombpy
 tabulate
 multimethod==1.9.1
 numpy
-google-generativeai
+groq
