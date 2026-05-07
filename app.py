@@ -8,7 +8,7 @@ from Automated_Goal_plots import id_return, nice_time
 import socceraction.spadl as spadl
 import socceraction.xthreat as xT
 from compute_xt_statsbomb import FootballAnalyticsEngine
-import google.generativeai as genai
+from groq import Groq
 
 # Page configuration
 st.set_page_config(page_title="Football VAEP Analyzer", layout="wide")
@@ -52,24 +52,26 @@ def get_sb_competitions(only_360_filter=False):
 def get_sb_matches(cid, sid):
     return sb.matches(competition_id=cid, season_id=sid)
 
-# --- LLM Setup ---
+# --- LLM Setup (Groq) ---
 st.sidebar.divider()
-st.sidebar.subheader("🤖 Tactical Intelligence AI")
-gemini_key = st.sidebar.text_input("Gemini API Key", type="password", help="Enter your Gemini API key to enable LLM-powered scouting reports.")
-if gemini_key:
-    genai.configure(api_key=gemini_key)
-    llm_model = genai.GenerativeModel('gemini-1.5-flash')
-else:
-    llm_model = None
+st.sidebar.subheader("🤖 Tactical Intelligence AI (Groq)")
 
-# --- Tactical Report Generator (LLM Powered) ---
+# Groq API Key Handling
+groq_key = st.sidebar.text_input("Groq API Key", type="password", help="Paste your Groq API key here (gsk_...)")
+
+if groq_key:
+    client = Groq(api_key=groq_key)
+else:
+    client = None
+
+# --- Tactical Report Generator (Groq Powered) ---
 
 def generate_technical_report(summary):
     if summary is None or summary.empty:
         return "No data available for tactical analysis."
     
-    if not llm_model:
-        return "⚠️ **LLM Integration Required**: Please enter a Gemini API Key in the sidebar to generate a long-form tactical narrative."
+    if not client:
+        return "⚠️ **Groq Integration Required**: Please provide a valid Groq API Key in the sidebar to enable ultra-fast AI scouting."
 
     # Prepare KPI JSON for LLM
     kpi_json = summary.to_json(orient='records')
@@ -92,11 +94,16 @@ def generate_technical_report(summary):
     """
     
     try:
-        with st.spinner("AI Scout is analyzing the data..."):
-            response = llm_model.generate_content(prompt)
-            return response.text
+        with st.spinner("Groq AI is analyzing the data..."):
+            completion = client.chat.completions.create(
+                model="llama-3.1-70b-versatile",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=2048
+            )
+            return completion.choices[0].message.content
     except Exception as e:
-        return f"Error generating AI report: {str(e)}"
+        return f"Error generating Groq report: {str(e)}"
 
 # --- Sidebar Logic ---
 
