@@ -46,9 +46,9 @@ def get_sb_competitions(only_360_filter=False):
     
     if only_360_filter:
         # Strict 360 availability check
-        # StatsBomb stores these as timestamps or None. We filter for any non-null, non-empty string.
+        # StatsBomb stores these as timestamps or None. 
+        # We filter for any non-null, non-empty strings, and ensure they look like timestamps.
         comps = comps[comps['match_available_360'].notnull()]
-        # Additional safety check for empty strings or very short strings that might bypass notnull
         comps = comps[comps['match_available_360'].astype(str).str.len() > 5]
         
     # Create display names
@@ -141,10 +141,47 @@ def data_generation(home_team_name, away_team_name, league_name, source):
                   .merge(df_players[["player_id", "player_name", "nickname"]], how="left")
                   .merge(df_teams[["team_id", "team_name"]], how="left"))
         actions["short_name"] = actions["nickname"].fillna(actions["player_name"])
-        goal = actions[((actions["type_name"] == "shot") | (actions["type_name"] == "shot_penalty")) & (actions["result_name"] == "success")]
+        goal = actions[((actions["type_name"] == "shot") | (actions["type_name"] == "shot_penalty") | (actions["type_name"] == "shot_freekick")) &
+                       (actions["result_name"] == "success")]
         return actions, goal, pd.DataFrame([{"game_id": match_id}])
-    # Legacy logic omitted for brevity as it's stable...
-    return None, None, None # Placeholder for brevity in this tool call
+    
+    # Legacy Wyscout Logic
+    if league_name == "Bundes Liga":
+        league_file_name = "Bundesliga"
+    elif league_name == "World Cup":
+        league_file_name = "WorldCup-2018"
+    else:
+        league_file_name = league_name
+        
+    spadl_h5 = os.path.join('spadl', f"spadl-{league_file_name}.h5")
+    if not os.path.exists(spadl_h5):
+        return None, None, None
+
+    with pd.HDFStore(spadl_h5) as spadlstore:
+        games = spadlstore["games"]
+        league_id_key = league_name if league_name != "Bundes Liga" else "Bundesliga"
+        game_id = games[(games.competition_id == id_return(league_id_key))
+                      & ((games.home_team_name == home_team_name)
+                      & (games.away_team_name == away_team_name))].game_id.values
+        
+        if len(game_id) == 0:
+            return None, None, games
+
+        actions_list = []
+        for g_id in game_id:
+            action = spadlstore[f"actions/game_{g_id}"]
+            action = (
+                action.merge(spadlstore["actiontypes"], how="left")
+                .merge(spadlstore["results"], how="left")
+                .merge(spadlstore["players"], how="left")
+                .merge(spadlstore["teams"], how="left")
+            )
+            actions_list.append(action)
+        
+        actions = pd.concat(actions_list, ignore_index=True)
+        goal = actions[((actions["type_name"] == "shot") | (actions["type_name"] == "shot_penalty") | (actions["type_name"] == "shot_freekick")) &
+                       (actions["result_name"] == "success")]
+        return actions, goal, games
 
 # --- Main Tabs ---
 
@@ -153,8 +190,38 @@ tab_match, tab_team, tab_tactical, tab_league = st.tabs(["🎯 Match Analysis", 
 with tab_match:
     st.subheader("Match-wise Action Valuation")
     if st.button("Analyze Match", key="btn_match"):
-        # ... logic to run analysis
-        st.info("Analysis results will appear here.")
+        with st.spinner("Generating match analysis..."):
+            actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
+            if actions is None:
+                st.warning("No data found for this match combination.")
+            else:
+                actions["nice_time"] = actions.apply(nice_time, axis=1)
+                if len(goal) == 0:
+                    st.info("No goals were scored in this match.")
+                else:
+                    st.markdown(f"### ⚽ Goals in {home_team} vs {away_team}")
+                    for i in range(len(goal)):
+                        a = actions[goal.index[i]-5:goal.index[i]+1].copy()
+                        goal_action = a.iloc[-1]
+                        scorer = goal_action["short_name"]; team = goal_action["team_name"]
+                        st.markdown(f"**Goal {i+1}: {scorer} ({team})**")
+                        fig, ax = plt.subplots(figsize=(10, 7))
+                        matplotsoccer.actions(
+                            location=a[["start_x", "start_y", "end_x", "end_y"]],
+                            action_type=a.type_name, team=a.team_name,
+                            result=a.result_name == "success",
+                            label=a[["nice_time", "type_name", "short_name"]],
+                            labeltitle=["time", "actiontype", "short_name"],
+                            zoom=False, show=False, ax=ax
+                        )
+                        st.pyplot(fig); plt.close(fig)
+                st.divider()
+                st.markdown(f"### 📊 Player Impact (xT) Ranking")
+                if data_source == "Latest StatsBomb (Open Data)":
+                    xt_model = xT.ExpectedThreat(l=16, w=12); xt_model.fit(actions)
+                    actions["xt_value"] = xt_model.rate(actions)
+                    summary = actions.groupby(["short_name", "team_name"]).agg({"xt_value": "sum", "type_name": "count"}).rename(columns={"type_name": "total_actions", "xt_value": "Expected Threat (xT)"})
+                    st.dataframe(summary.sort_values("Expected Threat (xT)", ascending=False), width="stretch")
 
 with tab_tactical:
     st.subheader("🧠 Tactical Insights (StatsBomb 360)")
@@ -188,8 +255,32 @@ with tab_tactical:
     else:
         st.warning("StatsBomb 360 data is only available for 'Latest StatsBomb (Open Data)'.")
 
-with tab_team: st.subheader("🛡️ Team Analytics")
-with tab_league: st.subheader("🏆 League Leaderboards")
+with tab_team:
+    st.subheader(f"🛡️ Team Analytics: {home_team}")
+    if data_source == "Latest StatsBomb (Open Data)" and chosen_league:
+        if st.button(f"Analyze {home_team} Season Contribution"):
+            engine = FootballAnalyticsEngine(); cid, sid = sb_comp_map[chosen_league]
+            with st.spinner("Fetching season data..."):
+                matches = get_sb_matches(cid, sid)
+                team_matches = matches[(matches.home_team == home_team) | (matches.away_team == home_team)]
+                all_actions = []
+                for _, m in team_matches.head(5).iterrows():
+                    try: actions = engine.load_match_data(m.match_id); all_actions.append(actions[actions.team_name == home_team])
+                    except: pass
+                if all_actions:
+                    df_team = pd.concat(all_actions); xt_model = xT.ExpectedThreat(l=16, w=12); xt_model.fit(df_team)
+                    df_team["xt_value"] = xt_model.rate(df_team)
+                    st.dataframe(df_team.groupby("player_name").agg({"xt_value": "sum"}).sort_values("xt_value", ascending=False), width="stretch")
+
+with tab_league:
+    st.subheader(f"🏆 League Leaderboard: {chosen_league}")
+    if data_source == "Latest StatsBomb (Open Data)" and chosen_league:
+        sample_size = st.slider("Matches to analyze", 1, 50, 5)
+        if st.button("Generate Season Rankings"):
+            engine = FootballAnalyticsEngine(); cid, sid = sb_comp_map[chosen_league]
+            with st.spinner("Computing season rankings..."):
+                leaderboard = engine.get_competition_leaderboard(cid, sid, max_matches=sample_size)
+                if not leaderboard.empty: st.dataframe(leaderboard, width="stretch")
 
 st.sidebar.markdown("---")
 st.sidebar.info(f"Data Source: {data_source}")
