@@ -51,34 +51,33 @@ def get_sb_competitions(only_360_filter=False):
 def get_sb_matches(cid, sid):
     return sb.matches(competition_id=cid, season_id=sid)
 
-# --- Persona Report Generator ---
+# --- Tactical Report Generator (Professional Format) ---
 
 def generate_technical_report(summary):
     if summary is None or summary.empty:
         return "No data available for tactical analysis."
     
-    report = "### 👔 Guardiola x Ferguson: Tactical Intelligence Report\n\n"
-    report += "> *\"A combination of technical mastery and the character to seize the moment.\"*\n\n"
+    report = "### 📋 Match Tactical Intelligence Assessment\n\n"
     
     for _, stats in summary.iterrows():
         team = stats['team']
-        report += f"#### **{team} Assessment**\n"
+        report += f"#### **{team} Tactical Profile**\n"
         
-        # Pep Style (Tactical/Spatial)
+        # Tactical/Spatial Insight
         if stats['def_line_height'] > 48:
-            pep = f"We compressed the pitch beautifully with a **{stats['def_line_height']:.1f}m** line. It allowed us to sustain pressure in the final third."
+            tactical = f"The defensive structure was characterized by high compression with a **{stats['def_line_height']:.1f}m** average line height, effectively restricting opponent buildup space."
         else:
-            pep = f"The block was too deep at **{stats['def_line_height']:.1f}m**. We lacked the verticality to punish their transitions from this depth."
+            tactical = f"A deep defensive posture (**{stats['def_line_height']:.1f}m**) was maintained, focusing on low-block resilience but limiting immediate transition verticality."
             
-        # Sir Alex Style (Management/Speed)
+        # Transition/Physical Insight
         if stats['peak_run_speed_ms'] > 8.5:
-            gaffer = f"That **{stats['peak_run_speed_ms']:.1f} m/s** burst on the shoulder is exactly what I like to see. No fear, just pure aggression."
+            transition = f"Exceptional physical commitment was evident in the final third, with peak off-the-ball run velocities reaching **{stats['peak_run_speed_ms']:.1f} m/s**, consistently challenging the opponent's defensive shoulder."
         else:
-            gaffer = f"A bit pedestrian in the breaks. **{stats['peak_run_speed_ms']:.1f} m/s** isn't going to win you a title in the dying minutes, is it?"
+            transition = f"Transition phases were more measured, with peak velocities capped at **{stats['peak_run_speed_ms']:.1f} m/s**, suggesting a preference for structured buildup over explosive counters."
             
-        report += f"*   **The Professor (Guardiola)**: {pep}\n"
-        report += f"*   **The Gaffer (Ferguson)**: {gaffer}\n"
-        report += f"*   **Spatial Insight**: Team Width (**{stats['team_width']:.1f}m**) vs Congestion (**{stats['congestion_5m']:.2f}**) suggests efficient usage of half-spaces.\n\n"
+        report += f"*   **Technical Analysis**: {tactical}\n"
+        report += f"*   **Tactical Assessment**: {transition}\n"
+        report += f"*   **Spatial Dynamics**: Utilization of pitch width (**{stats['team_width']:.1f}m**) against a density of **{stats['congestion_5m']:.2f}** indicates efficient control of half-spaces.\n\n"
         
     return report
 
@@ -106,21 +105,12 @@ if data_source == "Latest StatsBomb (Open Data)":
             away_team = st.sidebar.selectbox("Away Team", opponents)
 else:
     chosen_league = st.sidebar.selectbox("Select League", leagues)
-    def get_league_teams(league):
-        return []
     home_team = st.sidebar.selectbox("Home Team", ["Select League First"], disabled=True)
     away_team = st.sidebar.selectbox("Away Team", ["Select League First"], disabled=True)
 
 # --- Main Tabs ---
 
 tab_match, tab_team, tab_tactical, tab_league = st.tabs(["🎯 Match Analysis", "🛡️ Team Analytics", "🧠 Tactical Insights (360)", "🏆 League Leaderboards"])
-
-with tab_match:
-    st.subheader("Match-wise Action Valuation")
-    if st.button("Analyze Match", key="btn_match"):
-        with st.spinner("Generating match analysis..."):
-            # ... analysis logic
-            st.info("Analysis logic active.")
 
 with tab_tactical:
     st.subheader("🧠 Tactical Insights (StatsBomb 360)")
@@ -155,9 +145,6 @@ with tab_tactical:
                         else: st.error("No 360 data found.")
             else: st.error("Match not found.")
     else: st.warning("360 data only for StatsBomb Open Data.")
-
-with tab_team: st.subheader("🛡️ Team Analytics")
-with tab_league: st.subheader("🏆 League Leaderboards")
 
 st.sidebar.markdown("---")
 st.sidebar.info(f"Data Source: {data_source}")
