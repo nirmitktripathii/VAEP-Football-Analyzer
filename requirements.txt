@@ -10,3 +10,4 @@ tabulate
 multimethod==1.9.1
 numpy
 groq
+scipy
