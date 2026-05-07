@@ -4,7 +4,7 @@ import json
 class TacticalLLMReporter:
     def __init__(self, api_key):
         self.client = Groq(api_key=api_key)
-        self.model = "llama-3.3-70b-specdec"
+        self.model = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     def generate_report(self, kpi_json):
         if not self.client.api_key:
