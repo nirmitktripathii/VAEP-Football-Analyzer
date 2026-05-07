@@ -29,7 +29,7 @@ def plot_tactical_summary_pitch(summary_df):
             ax.scatter(p['x'], p['y'], s=220, color='#00FFCC', edgecolor='white', linewidth=1.5, zorder=5)
             ax.text(p['x'], p['y'] - 4, short_name, color='white', ha='center', fontsize=10, fontweight='bold', zorder=6)
 
-        line_x = stats['def_line_height']
+        line_x = stats['def_line_height_yds']
         ax.axvline(x=line_x, color='#FF3366', linestyle='--', label='Defensive Line', alpha=0.8, linewidth=2.5, zorder=3)
         ax.set_title(f"{team_name}", color='white', fontsize=18, fontweight='bold', pad=20)
         ax.set_aspect('equal'); ax.axis('off')
