@@ -1,0 +1,7 @@
+.streamlit/
+*.pyc
+__pycache__/
+*.h5
+*.csv
+.env
+nico_williams_goal_360.png

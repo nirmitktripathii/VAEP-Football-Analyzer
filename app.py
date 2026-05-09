@@ -7,7 +7,18 @@ from statsbombpy import sb
 from Automated_Goal_plots import id_return, nice_time
 import socceraction.spadl as spadl
 import socceraction.xthreat as xT
+import plotly.graph_objects as go
 from compute_xt_statsbomb import FootballAnalyticsEngine
+from llm_tactical_reporter import TacticalLLMReporter
+from tactical_viz import plot_tactical_summary_pitch
+from freeze_frame_viz import plot_tactical_evolution_plotly
+
+# Initialize LLM Reporter
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY and "GROQ_API_KEY" in st.secrets:
+    GROQ_API_KEY = st.secrets["GROQ_API_KEY"]
+
+llm_reporter = TacticalLLMReporter(GROQ_API_KEY) if GROQ_API_KEY else None
 
 # Page configuration
 st.set_page_config(page_title="Football VAEP Analyzer", layout="wide")
@@ -124,6 +135,11 @@ def data_generation(home_team_name, away_team_name, league_name, source):
         # Convert to SPADL
         actions = spadl.statsbomb.convert_to_actions(df_actions, home_team_id=df_teams.iloc[0].team_id)
         
+        # Ensure original_event_id is present (socceraction usually provides this)
+        if "original_event_id" not in actions.columns:
+            # Fallback mapping if not present
+            actions["original_event_id"] = df_actions.loc[actions.index, "event_id"].values
+
         # Add names
         actions = (
             actions.merge(spadl.actiontypes_df(), how="left")
@@ -178,62 +194,172 @@ def data_generation(home_team_name, away_team_name, league_name, source):
                        (actions["result_name"] == "success")]
         return actions, goal, games
 
-# Main content
-# Main content with Tabs
+# Initialize Session State
+if 'match_analysis' not in st.session_state:
+    st.session_state.match_analysis = None
+
 tab_match, tab_team, tab_tactical, tab_league = st.tabs(["🎯 Match Analysis", "🛡️ Team Analytics", "🧠 Tactical Insights (360)", "🏆 League Leaderboards"])
 
 with tab_match:
     st.subheader("Match-wise Action Valuation")
+    
     if st.button("Analyze Match", key="btn_match"):
         with st.spinner("Generating match analysis..."):
             actions, goal, games = data_generation(home_team, away_team, chosen_league, data_source)
             
-            if actions is None:
-                st.warning("No data found for this match combination.")
+            if actions is not None:
+                # 1. PRE-COMPUTE METRICS
+                with st.spinner("Computing Action Values (xT & VAEP)..."):
+                    xt_model = xT.ExpectedThreat(l=16, w=12)
+                    xt_model.fit(actions)
+                    actions["xt_value"] = xt_model.rate(actions)
+                    actions["vaep_value"] = actions["xt_value"] + (actions["result_name"] == "success").astype(int) * 0.05
+                    
+                    goal_mask = (actions["type_name"].str.contains("shot", case=False)) & (actions["result_name"] == "success")
+                    actions.loc[goal_mask, "xt_value"] = 1.0
+                    actions.loc[goal_mask, "vaep_value"] = 1.0
+                    
+                    actions["nice_time"] = actions.apply(nice_time, axis=1)
+                    if "short_name" not in actions.columns:
+                        actions["short_name"] = actions["player_name"].fillna("Unknown")
+                    
+                    # Store in session state for persistence
+                    st.session_state.match_analysis = {
+                        'actions': actions,
+                        'goal': goal,
+                        'games': games,
+                        'home': home_team,
+                        'away': away_team
+                    }
             else:
-                # Prepare plotting labels
-                actions["nice_time"] = actions.apply(nice_time, axis=1)
-                # Goal Plots section
-                if len(goal) == 0:
-                    st.info("No goals were scored in this match.")
-                else:
-                    st.markdown(f"### ⚽ Goals in {home_team} vs {away_team}")
-                    for i in range(len(goal)):
-                        a = actions[goal.index[i]-5:goal.index[i]+1].copy()
-                        goal_action = a.iloc[-1]
-                        scorer = goal_action["short_name"]
-                        team = goal_action["team_name"]
-                        minute = int(goal_action["time_seconds"] // 60)
+                st.warning("No data found for this match combination.")
+
+    # 2. UI RENDERING FROM SESSION STATE
+    if st.session_state.match_analysis:
+        ma = st.session_state.match_analysis
+        actions = ma['actions']
+        goal = ma['goal']
+        games = ma['games']
+        home_team = ma['home']
+        away_team = ma['away']
+
+        if len(goal) == 0:
+            st.info("No goals were scored in this match.")
+        else:
+            st.markdown(f"### ⚽ Goals in {home_team} vs {away_team}")
+            for i in range(len(goal)):
+                # We use goal_idx as key to avoid collisions
+                goal_idx = goal.index[i]
+                a = actions[goal_idx-5:goal_idx+1].copy()
+                goal_action = a.iloc[-1]
+                scorer = goal_action["short_name"]
+                team = goal_action["team_name"]
+                minute = int(goal_action["time_seconds"] // 60)
+                
+                st.markdown(f"**Goal {i+1}: {scorer} ({team})** - {minute}'")
+                fig, ax = plt.subplots(figsize=(10, 7))
+                matplotsoccer.actions(
+                    location=a[["start_x", "start_y", "end_x", "end_y"]],
+                    action_type=a.type_name,
+                    team=a.team_name,
+                    result=a.result_name == "success",
+                    label=a[["nice_time", "type_name", "short_name"]],
+                    labeltitle=["time", "actiontype", "short_name"],
+                    zoom=False, show=False, ax=ax
+                )
+                for collection in ax.collections: collection.set_sizes([15])
+                st.pyplot(fig)
+                plt.close(fig)
+
+                # New: Interactive 360 Tactical Evolution (Manual Control)
+                if data_source == "Latest StatsBomb (Open Data)":
+                    # --- TACTICAL 360 EVOLUTION VIEWER ---
+                    st.divider()
+                    st.subheader("🧬 360° Tactical Intelligence Evolution")
+                    
+                    from freeze_frame_viz import plot_tactical_evolution_plotly
+                    
+                    # Prepare match info
+                    scoring_team = team
+                    match_info = {'home_team': home_team, 'away_team': away_team}
+                    selected_match_id = int(games.iloc[0].game_id)
+                    opp_name = match_info['home_team'] if match_info['away_team'] == scoring_team else match_info['away_team']
+                    
+                    # Get action sequence and define unique key for the goal
+                    action_sequence = actions.loc[max(0, goal_idx-5):goal_idx].to_dict('records')
+                    goal_key = str(goal_idx)
+                    
+                    # Fetch (or retrieve from cache) the tactical evolution
+                    fig_evol, hull_areas = plot_tactical_evolution_plotly(selected_match_id, action_sequence, scoring_team, opp_name)
+                    
+                    if fig_evol and len(fig_evol.frames) > 0:
+                        # --- INTERACTIVE TACTICAL VIDEO ROOM ---
+                        st.subheader("🎥 Tactical Video Room: Phase Analysis")
                         
-                        # Ensure all required columns for plotting exist in 'a'
-                        if "nice_time" not in a.columns:
-                            a["nice_time"] = a.apply(nice_time, axis=1)
-                        if "short_name" not in a.columns and "player_name" in a.columns:
-                            a["short_name"] = a["player_name"]
-                        
-                        st.markdown(f"**Goal {i+1}: {scorer} ({team})** - {minute}'")
-                        fig, ax = plt.subplots(figsize=(10, 7))
-                        matplotsoccer.actions(
-                            location=a[["start_x", "start_y", "end_x", "end_y"]],
-                            action_type=a.type_name,
-                            team=a.team_name,
-                            result=a.result_name == "success",
-                            label=a[["nice_time", "type_name", "short_name"]],
-                            labeltitle=["time", "actiontype", "short_name"],
-                            zoom=False, show=False, ax=ax
+                        num_phases = len(action_sequence)
+                        selected_phase_idx = st.select_slider(
+                            "Scrub Buildup Phases",
+                            options=list(range(num_phases)),
+                            format_func=lambda x: f"Phase {x+1}: {action_sequence[x].get('type_name', 'Action')}",
+                            value=num_phases - 1,
+                            key=f"slider_{goal_key}"
                         )
-                        for collection in ax.collections: collection.set_sizes([15])
-                        st.pyplot(fig)
-                        plt.close(fig)
+                        
+                        # Update Plotly figure to selected phase
+                        try:
+                            # Extract data for the selected frame
+                            selected_frame_data = fig_evol.frames[selected_phase_idx].data
+                            fig_static = go.Figure(data=selected_frame_data, layout=fig_evol.layout)
+                            
+                            # Add phase-specific title
+                            curr_act = action_sequence[selected_phase_idx]
+                            fig_static.update_layout(
+                                title=f"Phase {selected_phase_idx+1}: {curr_act.get('player_name', 'Team')} - {curr_act.get('type_name')}",
+                                margin=dict(l=20, r=20, t=60, b=20)
+                            )
+                            st.plotly_chart(fig_static, use_container_width=True, key=f"pitch_viz_{goal_key}_{selected_phase_idx}")
+                        except Exception as e:
+                            st.error(f"Error rendering phase visualization: {e}")
+                            st.plotly_chart(fig_evol, use_container_width=True)
+
+                        # --- COACH'S NOTEBOOK ---
+                        st.markdown("### 📋 Coach's Notebook")
+                        if llm_reporter:
+                            insight_key = f"insight_{goal_key}_{selected_phase_idx}"
+                            if insight_key not in st.session_state:
+                                with st.spinner(f"Strategic analysis for Phase {selected_phase_idx + 1}..."):
+                                    try:
+                                        curr_action = action_sequence[selected_phase_idx]
+                                        phase_data = {
+                                            "player": curr_action.get('short_name'),
+                                            "action": curr_action.get('type_name'),
+                                            "vaep": curr_action.get('vaep_value', 0),
+                                            "xt": curr_action.get('xt_value', 0)
+                                        }
+                                        h_area = hull_areas.get(selected_phase_idx, 0)
+                                        phase_insight = llm_reporter.generate_phase_insight(phase_data, h_area, selected_phase_idx)
+                                        st.session_state[insight_key] = phase_insight
+                                    except Exception as e:
+                                        st.session_state[insight_key] = f"⚠️ Tactical Analysis Unavailable: {e}"
+                            st.markdown(st.session_state[insight_key])
+                        else:
+                            st.info("💡 Connect Groq API Key in secrets to enable AI Coaching Insights.")
+
+                        # --- TECHNICAL METRICS SUMMARY ---
+                        with st.expander("📝 Buildup Data: Phase Metrics"):
+                            cols = st.columns(num_phases)
+                            for idx, action in enumerate(action_sequence):
+                                with cols[idx]:
+                                    st.markdown(f"**P{idx+1}**")
+                                    st.metric("xT", f"{round(action.get('xt_value', 0), 2)}")
+                                    st.metric("VAEP", f"{round(action.get('vaep_value', 0), 2)}")
+                    else:
+                        st.info("💡 360° Tactical Data not available for this specific match buildup.")
 
                 st.divider()
                 # Match VAEP/xT Ranking
                 st.markdown(f"### 📊 Player Impact (xT) Ranking")
                 if data_source == "Latest StatsBomb (Open Data)":
-                    xt_model = xT.ExpectedThreat(l=16, w=12)
-                    xt_model.fit(actions)
-                    actions["xt_value"] = xt_model.rate(actions)
-                    
                     summary = actions.groupby(["short_name", "team_name"]).agg({
                         "xt_value": "sum", "type_name": "count"
                     }).rename(columns={"type_name": "total_actions", "xt_value": "Expected Threat (xT)"})
@@ -299,17 +425,36 @@ with tab_tactical:
                     if summary is not None:
                         st.success("Tactical metrics successfully extracted!")
                         
+                        # New: Graphical Pitch Map
+                        st.markdown("#### 🏟️ Visual Tactical Summary")
+                        fig_pitch = plot_tactical_summary_pitch(summary)
+                        st.pyplot(fig_pitch)
+                        plt.close(fig_pitch)
+                        
+                        st.divider()
                         # Display Metrics in Columns
                         cols = st.columns(2)
                         for i, team_name in enumerate(summary['team'].unique()):
                             team_stats = summary[summary['team'] == team_name].iloc[0]
                             with cols[i % 2]:
                                 st.markdown(f"### {team_name}")
-                                st.metric("Defensive Line Height", f"{team_stats['def_line_height']:.1f}m")
+                                st.metric("Defensive Line Height", f"{team_stats['def_line_height_m']:.1f}m | {team_stats['def_line_height_yds']:.1f} yds")
                                 st.metric("Runners on Shoulder (Avg)", f"{team_stats['runners_on_shoulder']:.2f}")
-                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_ms']:.1f} m/s")
+                                st.metric("Peak Run Speed", f"{team_stats['peak_run_speed_m']:.1f} m/s | {team_stats['peak_run_speed_yds']:.1f} yds/s")
                                 st.metric("Congestion (5m)", f"{team_stats['congestion_5m']:.2f}")
-                                st.metric("Team Width/Length", f"{team_stats['team_width']:.1f}m / {team_stats['team_length']:.1f}m")
+                                st.metric("Team Width", f"{team_stats['team_width_m']:.1f}m | {team_stats['team_width_yds']:.1f} yds")
+                                st.metric("Team Length", f"{team_stats['team_length_m']:.1f}m | {team_stats['team_length_yds']:.1f} yds")
+                        
+                        st.divider()
+                        st.markdown("### 📋 Technical Scouting Report")
+                        with st.spinner("Generating tactical intelligence report via LLM..."):
+                            # Convert summary to JSON for LLM
+                            kpi_json = summary.to_dict(orient='records')
+                            if llm_reporter:
+                                report = llm_reporter.generate_report(kpi_json)
+                                st.markdown(report)
+                            else:
+                                st.warning("⚠️ Groq API Key missing. Technical scouting report generation is disabled. Please set the GROQ_API_KEY environment variable.")
                         
                         st.divider()
                         st.info("Detailed event-wise tactical data has been generated for advanced modeling.")
